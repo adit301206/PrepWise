@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepWise</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Changed to container-fluid to use full width -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3 custom-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
+                <!-- Circular logo -->
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
+            </a>
+
+            <!-- Profile Avatar (Visible on all screens, controlled by JS) -->
+            <div id="profileAvatarContainer" class="profile-section d-none order-lg-last ms-lg-auto">
+                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                    <span id="navbarUserInitial" class="fw-bold">U</span>
+                </div>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Leaderboard</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Login Button Container -->
+                    <div id="loginBtnContainer">
+                        <a href="{{ url_for('login') }}" class="btn btn-auth btn-signup-highlight">Login</a>
+                    </div>
+
+                    <!-- Desktop Profile Avatar (Hidden by default, shown via JS) -->
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Spacer for Fixed Navbar -->
+    <main style="padding-top: 100px;">
+        <div class="container text-center mt-5">
+            <div class="mb-4">
+                <span class="badge-pill">
+                    <i class="fa-solid fa-rocket badge-icon"></i> Smart Exam Preparation Platform
+                </span>
+            </div>
+            <p class="tagline">The Smartest Way to <br> <span class="highlight">Crush Your Exams</span></p>
+            <p class="description">
+                PrepWise is an intelligent exam-preparation platform that helps students practice smarter by generating
+                topic-wise, difficulty-based questions and providing instant feedback—making learning structured,
+                efficient, and exam-focused.
+            </p>
+            <div class="mt-4 mb-5 pb-5">
+                <a href="{{ url_for('signup') }}" class="btn btn-get-started">Get Started <i
+                        class="fa-solid fa-arrow-right ms-2"></i></a>
+            </div>
+
+            <!-- Demo Environment Section -->
+            <div class="row justify-content-center mb-5 pb-5">
+                <div class="col-12 col-lg-10">
+                    <div class="demo-wrapper position-relative">
+                        <!-- Trigger Bolt (Central) -->
+                        <div class="bolt-trigger" data-demo-url="{{ url_for('demo') }}">
+                            <i class="fa-solid fa-bolt demo-icon"></i>
+                            <span class="launch-text">Launch Demo Session</span>
+                        </div>
+
+                        <!-- Left Layer -->
+                        <div class="demo-window demo-layer layer-left">
+                            <div class="window-header">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <div class="demo-content text-center py-5 px-3">
+                                <div class="floating-shape shape-1"></div>
+                                <div class="floating-shape shape-2"></div>
+                                <div class="mb-5 position-relative demo-spacer">
+                                    <!-- Bolt removed -->
+                                    <i class="fa-solid fa-rocket demo-rocket"></i>
+                                    <i class="fa-solid fa-star demo-star"></i>
+                                </div>
+                                <h2 class="demo-title mb-4">Interactive Demo Environment</h2>
+                                <p class="demo-description mb-5">
+                                    Explore the student workflow, subject configuration, and our <br>
+                                    adaptive quiz engine in real-time.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Right Layer -->
+                        <div class="demo-window demo-layer layer-right">
+                            <div class="window-header">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <div class="demo-content text-center py-5 px-3">
+                                <div class="floating-shape shape-1"></div>
+                                <div class="floating-shape shape-2"></div>
+                                <div class="mb-5 position-relative demo-spacer">
+                                    <i class="fa-solid fa-rocket demo-rocket"></i>
+                                    <i class="fa-solid fa-star demo-star"></i>
+                                </div>
+                                <h2 class="demo-title mb-4">Interactive Demo Environment</h2>
+                                <p class="demo-description mb-5">
+                                    Explore the student workflow, subject configuration, and our <br>
+                                    adaptive quiz engine in real-time.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <section class="features-section py-5">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="features-title">Adaptive Intelligence</h2>
+                    <p class="features-subtitle">Everything you need to master any subject, from foundations to advanced
+                        concepts.</p>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    <!-- Row 1 -->
+                    <!-- Card 1: Blue Accent -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-blue">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-book-open feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Multi-Topic Quizzes</h3>
+                            <p class="feature-card-desc">
+                                Select specific subjects like Python and mix multiple topics like Loops and Functions in
+                                a single session.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Pink Accent (Placeholder) -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-pink">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-chart-line feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Performance Analytics</h3>
+                            <p class="feature-card-desc">
+                                Visualize your progress with detailed charts and gain insights into your strong and weak
+                                areas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Yellow Accent (Placeholder) -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-yellow">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-brain feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Dynamic Difficulty</h3>
+                            <p class="feature-card-desc">
+                                Our AI adjusts the question difficulty in real-time based on your performance to keep
+                                you challenged.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <!-- Card 4: Blue Accent (Cycle Repeat) -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-blue">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-chalkboard-user feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Teacher Managed</h3>
+                            <p class="feature-card-desc">
+                                Curriculum designed and updated by subject matter experts to ensure accuracy and
+                                relevance.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Pink Accent (Cycle Repeat) -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-pink">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-bolt feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Instant Feedback</h3>
+                            <p class="feature-card-desc">
+                                Get immediate explanations for every answer, helping you learn from mistakes in
+                                real-time.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Yellow Accent (Cycle Repeat) -->
+                    <div class="col-12 col-md-4">
+                        <div class="feature-card accent-yellow">
+                            <div class="feature-icon-wrapper">
+                                <i class="fa-solid fa-wand-magic-sparkles feature-icon"></i>
+                            </div>
+                            <h3 class="feature-card-title">Students Insights</h3>
+                            <p class="feature-card-desc">
+                                Identify your weak areas automatically and get recommendations on what to study next.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Divider -->
+        <div class="container">
+            <hr class="section-divider my-5">
+        </div>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section py-5 mb-5">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="features-title">Trusted by Top Students</h2>
+                    <p class="features-subtitle">Join thousands of learners who have transformed their grades with
+                        PrepWise.</p>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    <!-- Sarah J. (Blue) -->
+                    <div class="col-12 col-md-4">
+                        <div class="testimonial-card">
+                            <p class="testimonial-quote">
+                                "PrepWise helped me ace my Python finals. The topic-specific quizzes and analysis are a
+                                lifesaver!"
+                            </p>
+                            <div class="testimonial-author d-flex align-items-center gap-3 mt-4">
+                                <div class="avatar-circle bg-blue-dark">A</div>
+                                <div>
+                                    <h5 class="author-name mb-0">Adit</h5>
+                                    <span class="author-role">Computer Science Student</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- David K. (Pink) -->
+                    <div class="col-12 col-md-4">
+                        <div class="testimonial-card">
+                            <p class="testimonial-quote">
+                                "The adaptive difficulty ensures I'm always pushed to my limits. Highly recommend for
+                                serious study."
+                            </p>
+                            <div class="testimonial-author d-flex align-items-center gap-3 mt-4">
+                                <div class="avatar-circle bg-pink-dark">V</div>
+                                <div>
+                                    <h5 class="author-name mb-0">Vishwa</h5>
+                                    <span class="author-role">Medical Student</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Elena R. (Yellow) -->
+                    <div class="col-12 col-md-4">
+                        <div class="testimonial-card">
+                            <p class="testimonial-quote">
+                                "The best exam prep tool I've ever used. The interface is beautiful and the questions
+                                are top-notch."
+                            </p>
+                            <div class="testimonial-author d-flex align-items-center gap-3 mt-4">
+                                <div class="avatar-circle bg-yellow-dark">R</div>
+                                <div>
+                                    <h5 class="author-name mb-0">Riya</h5>
+                                    <span class="author-role">High School Senior</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section py-5 mb-5">
+            <div class="container">
+                <div class="row gy-4 border-top border-bottom border-secondary border-opacity-25 py-5">
+                    <!-- Stat 1 -->
+                    <div class="col-md-3 col-6 text-center border-end border-secondary border-opacity-10">
+                        <div class="stat-number color-blue">50k+</div>
+                        <div class="stat-label">Active Students</div>
+                    </div>
+
+                    <!-- Stat 2 -->
+                    <div class="col-md-3 col-6 text-center border-end border-secondary border-opacity-10">
+                        <div class="stat-number color-pink">2M+</div>
+                        <div class="stat-label">Questions Solved</div>
+                    </div>
+
+                    <!-- Stat 3 -->
+                    <div class="col-md-3 col-6 text-center border-end border-secondary border-opacity-10">
+                        <div class="stat-number color-yellow">45+</div>
+                        <div class="stat-label">Subject Areas</div>
+                    </div>
+
+                    <!-- Stat 4 -->
+                    <div class="col-md-3 col-6 text-center">
+                        <div class="stat-number color-blue">94%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section py-5 mb-5">
+            <div class="container">
+                <div class="row align-items-center gx-5">
+                    <!-- Left Column: Steps -->
+                    <div class="col-12 col-lg-6 mb-5 mb-lg-0">
+                        <h2 class="features-title mb-5">
+                            Master Any Subject in <span class="highlight-text">4 Simple Steps</span>
+                        </h2>
+
+                        <div class="steps-container">
+                            <!-- Step 1 (Blue) -->
+                            <div class="step-item d-flex gap-4 mb-4">
+                                <div class="step-number bg-blue-soft color-blue-dark">1</div>
+                                <div>
+                                    <h4 class="step-title">Choose Your Subject</h4>
+                                    <p class="step-desc">Select from a wide range of academic and professional subjects.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 (Pink) -->
+                            <div class="step-item d-flex gap-4 mb-4">
+                                <div class="step-number bg-pink-soft color-pink-dark">2</div>
+                                <div>
+                                    <h4 class="step-title">Define Your Scope</h4>
+                                    <p class="step-desc">Pick specific topics or mix them up for a comprehensive review.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 (Yellow) -->
+                            <div class="step-item d-flex gap-4 mb-4">
+                                <div class="step-number bg-yellow-soft color-yellow-dark">3</div>
+                                <div>
+                                    <h4 class="step-title">Set the Challenge</h4>
+                                    <p class="step-desc">Choose your difficulty level and the number of questions.</p>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 (Blue) -->
+                            <div class="step-item d-flex gap-4">
+                                <div class="step-number bg-blue-soft color-blue-dark">4</div>
+                                <div>
+                                    <h4 class="step-title">Execute and Analyze</h4>
+                                    <p class="step-desc">Complete the quiz and get instant, detailed feedback on your
+                                        performance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Quiz Config Card -->
+                    <div class="col-12 col-lg-6">
+                        <div class="config-card">
+                            <div class="config-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0 text-white font-primary fw-bold">Quiz Configuration</h5>
+                                <i class="fa-regular fa-clock text-white opacity-50"></i>
+                            </div>
+
+                            <!-- Mock Inputs -->
+                            <div class="mock-input-group mb-3">
+                                <div class="mock-input d-flex justify-content-between align-items-center">
+                                    <span>Subject: Computer Science</span>
+                                    <i class="fa-solid fa-circle-check text-primary"></i>
+                                </div>
+                            </div>
+
+                            <div class="mock-input-group mb-3">
+                                <div class="mock-input">
+                                    <span>Difficulty: Hard</span>
+                                </div>
+                            </div>
+
+                            <div class="mock-input-group mb-4">
+                                <div class="mock-input">
+                                    <span>Questions: 25</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary w-100 btn-generate">Generate Quiz</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section py-5 mb-5">
+            <div class="container">
+                <div class="cta-box text-center">
+                    <h2 class="cta-title">Ready to transform your <br> exam preparation?</h2>
+                    <div class="mt-4">
+                        <a href="{{ url_for('signup') }}" class="btn btn-cta">Create Free Account</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer class="footer pt-5 pb-2">
+            <div class="container">
+                <div class="row gy-4 mb-5">
+                    <!-- Brand Column -->
+                    <div class="col-12 col-lg-4 col-md-12 text-md-start">
+                        <a class="navbar-brand d-flex align-items-center gap-2 mb-3" href="#">
+                            <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                                class="logo rounded-circle footer-logo" style="width: 60px; height: 60px;">
+                            <span class="brand-name footer-brand-text">PrepWise</span>
+                        </a>
+                        <p class="text-white-50 mb-4" style="max-width: 300px;">
+                            The smartest way to prepare for exams. Adaptive quizzes, instant feedback, and detailed
+                            analytics.
+                        </p>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="social-icon"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-github"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Product -->
+                    <div class="col-lg-2 col-6">
+                        <h6 class="footer-heading">Product</h6>
+                        <ul class="list-unstyled d-flex flex-column gap-2">
+                            <li><a href="#" class="footer-link">Features</a></li>
+                            <li><a href="#" class="footer-link">Pricing</a></li>
+                            <li><a href="#" class="footer-link">Testimonials</a></li>
+                            <li><a href="#" class="footer-link">FAQ</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 3: Resources -->
+                    <div class="col-lg-2 col-6">
+                        <h6 class="footer-heading">Resources</h6>
+                        <ul class="list-unstyled d-flex flex-column gap-2">
+                            <li><a href="#" class="footer-link">Blog</a></li>
+                            <li><a href="#" class="footer-link">Study Guides</a></li>
+                            <li><a href="#" class="footer-link">Tutorials</a></li>
+                            <li><a href="#" class="footer-link">Support</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Column 4: Company -->
+                    <div class="col-lg-2 col-6">
+                        <h6 class="footer-heading">Company</h6>
+                        <ul class="list-unstyled d-flex flex-column gap-2">
+                            <li><a href="#" class="footer-link">About Us</a></li>
+                            <li><a href="#" class="footer-link">Careers</a></li>
+                            <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                            <li><a href="#" class="footer-link">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border-top border-secondary border-opacity-25 pt-4 text-center">
+                    <p class="text-white-50 small mb-0">&copy; 2026 PrepWise. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Profile Offcanvas -->
+        <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+            aria-labelledby="offcanvasProfileLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column">
+                <!-- User Info -->
+                <div class="text-center mb-2">
+                    <div class="avatar-large mx-auto mb-2">
+                        <span id="offcanvasUserInitial">U</span>
+                    </div>
+                    <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
+                    <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+                </div>
+
+                <!-- Menu Links -->
+                <div class="d-grid gap-2 mb-auto">
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                    </a>
+                    <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                    </a>
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
+                    </a>
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                    </a>
+                </div>
+
+                <!-- Logout -->
+                <!-- Logout -->
+                <div class="mt-2 pt-2 border-top text-center">
+                    <button onclick="handleLogout()" class="btn btn-logout w-100 mb-2">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                    </button>
+                    <div class="brand-name fs-2">PrepWise</div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+        <!-- Custom JS -->
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

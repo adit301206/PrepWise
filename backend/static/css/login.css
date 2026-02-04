@@ -1,0 +1,114 @@
+/* Background */
+.glass-theme {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+    url("../images/b.jpeg");
+  background-size: cover;
+  background-position: left;
+  background-attachment: fixed;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Wrapper: left-aligned, vertically centered */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  /* centered */
+  align-items: center;
+  /* vertical center */
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 3px solid rgb(135, 34, 34);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass Card */
+.glass-card {
+  width: 320px;
+  padding: 20px;
+  margin-bottom: 0;
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.15);
+  /* More transparent dark tint */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  transition: transform 0.3s ease;
+
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Inputs */
+.glass-input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: #fff;
+  box-shadow: none;
+}
+
+/* Button */
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: #fff;
+  color: #333;
+  font-weight: 700;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  background: #f1f1f1;
+}
+
+/* Links */
+.glass-card a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Title + muted text contrast tweak */
+.login-title {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Optional logo styling */
+.login-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}

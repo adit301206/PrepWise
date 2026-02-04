@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - PrepWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}?v=2">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
+            </a>
+
+            <div class="d-none d-md-block ms-4">
+                <span class="student-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Student
+                </span>
+            </div>
+
+            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile">
+                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                    <span id="navbarUserInitial" class="fw-bold">U</span>
+                </div>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="ms-auto d-flex align-items-center gap-3 me-3">
+                    <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Analytics
+                    </a>
+                    <button class="btn btn-settings">
+                        <i class="fa-solid fa-gear me-2"></i>Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container py-5 mt-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h1 class="dashboard-title">Student Dashboard</h1>
+                    <p class="dashboard-subtitle text-muted">Ready to sharpen your knowledge? Configure your quiz below.
+                    </p>
+                </div>
+                <div class="d-flex gap-3">
+                    <button id="tab-quiz" class="btn btn-tab active"><i
+                            class="fa-solid fa-wand-magic-sparkles me-2"></i>Quiz</button>
+                    <button id="tab-history" class="btn btn-tab"><i
+                            class="fa-solid fa-clock-rotate-left me-2"></i>History</button>
+                    <button id="tab-leaderboard" class="btn btn-tab"><i
+                            class="fa-solid fa-trophy me-2"></i>Leaderboard</button>
+                </div>
+            </div>
+
+            <div id="section-quiz" class="section-content">
+                <div class="row g-5">
+                    <div class="col-12 col-lg-8">
+                        <div class="config-card">
+                            <div class="card-gradient-top"></div>
+
+                            <!-- START: User Stats Grid -->
+                            <div class="row g-3 mb-4 p-4 pb-0">
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border">
+                                        <small class="text-muted d-block mb-1">Total Quizzes</small>
+                                        <h4 class="fw-bold text-dark mb-0">{{ user_stats.total_quizzes }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border">
+                                        <small class="text-muted d-block mb-1">Avg Score</small>
+                                        <h4 class="fw-bold text-purple mb-0">{{ user_stats.avg_score }}%</h4>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border">
+                                        <small class="text-muted d-block mb-1">Accuracy</small>
+                                        <h4 class="fw-bold text-success mb-0">{{ user_stats.accuracy }}%</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- END: User Stats Grid -->
+
+                            <div class="p-5">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <div class="icon-box bg-purple-light text-purple">
+                                        <i class="fa-solid fa-gears"></i>
+                                    </div>
+                                    <h3 class="card-title mb-0">Quiz Configuration</h3>
+                                </div>
+                                <p class="text-muted mb-5 ms-1">Tailor the exam to your current learning objectives.</p>
+
+                                <div class="mb-5">
+                                    <label class="step-label mb-3"><span class="step-num">1</span> Select
+                                        Subject</label>
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn custom-dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                            type="button" id="subjectDropdown" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            <span id="selectedSubject">Which subject are we studying today?</span>
+                                            <i class="fa-solid fa-chevron-down small"></i>
+                                        </button>
+                                        <ul class="dropdown-menu custom-dropdown-menu w-100"
+                                            aria-labelledby="subjectDropdown">
+                                            <li><a class="dropdown-item" href="#" data-value="Computers"><i
+                                                        class="fa-solid fa-laptop-code me-2 text-primary"></i>Computers</a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="#" data-value="Mathematics"><i
+                                                        class="fa-solid fa-calculator me-2 text-warning"></i>Mathematics</a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="#" data-value="Physics"><i
+                                                        class="fa-solid fa-atom me-2 text-info"></i>Physics</a></li>
+                                            <li><a class="dropdown-item" href="#" data-value="Chemistry"><i
+                                                        class="fa-solid fa-flask me-2 text-danger"></i>Chemistry</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div id="topics-section" class="mb-5 d-none opacity-0 transition-opacity">
+                                    <label class="step-label mb-3"><span class="step-num">2</span> Choose Topics
+                                        (Multi-select)</label>
+                                    <div
+                                        class="topics-container d-flex flex-column align-items-center justify-content-center text-center p-5">
+                                        <div class="empty-state">
+                                            <i class="fa-solid fa-shield-halved mb-3"></i>
+                                            <p class="text-muted mb-0 fst-italic">No topics found for this subject.</p>
+                                        </div>
+                                        <div class="topics-grid d-none w-100 text-start"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4 mb-5">
+                                    <div class="col-12 col-md-6">
+                                        <label class="step-label mb-3"><span class="step-num">3</span> Difficulty
+                                            Level</label>
+                                        <div class="dropdown">
+                                            <button
+                                                class="btn custom-dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                                                type="button" id="difficultyDropdown" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <span id="selectedDifficulty">Medium</span>
+                                                <i class="fa-solid fa-chevron-down small"></i>
+                                            </button>
+                                            <ul class="dropdown-menu custom-dropdown-menu w-100"
+                                                aria-labelledby="difficultyDropdown">
+                                                <li><a class="dropdown-item" href="#" data-value="Easy"><span
+                                                            class="badge bg-success me-2">Easy</span>Starter</a></li>
+                                                <li><a class="dropdown-item" href="#" data-value="Medium"><span
+                                                            class="badge bg-warning text-dark me-2">Medium</span>Balanced</a>
+                                                </li>
+                                                <li><a class="dropdown-item" href="#" data-value="Hard"><span
+                                                            class="badge bg-danger me-2">Hard</span>Challenger</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label class="step-label mb-3"><span class="step-num">4</span> Questions
+                                            Count</label>
+                                        <input type="number" id="numQuestions" class="form-control custom-input"
+                                            value="10" min="5" max="50">
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-start-quiz w-100">
+                                    <i class="fa-solid fa-play me-2"></i> START QUIZ ENGINE
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="sidebar-widget mb-4">
+                            <h4 class="widget-title mb-4">Daily Progress</h4>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Daily Goal</span>
+                                <span class="text-purple fw-bold small">{{ daily_count }}/5 Quizzes</span>
+                            </div>
+                            <div class="progress custom-progress mb-3">
+                                <div class="progress-bar bg-gradient-purple" role="progressbar"
+                                    style="width: {{ daily_percentage }}%" aria-valuenow="{{ daily_percentage }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <p class="text-muted smaller">Complete more quizzes to hit your daily target!</p>
+
+                        <div class="sidebar-widget tip-widget bg-gradient-deep-purple text-white">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                <h4 class="widget-title text-white mb-0">Pro Study Tip</h4>
+                            </div>
+                            <p class="tip-text fst-italic">"Mixed practice—studying different topics in one
+                                session—leads to
+                                better long-term retention than blocking by topic."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-history" class="section-content d-none my-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="section-title mb-0">Quiz History</h3>
+                </div>
+
+                {% if history %}
+                <div class="glass-card table-wrapper p-0">
+                    <table class="table custom-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="ps-4">Date</th>
+                                <th scope="col">Topic</th>
+                                <th scope="col" class="text-center">Score</th>
+                                <th scope="col">Result</th>
+                                <th scope="col" class="text-center pe-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in history %}
+                            <tr>
+                                <td class="ps-4 text-secondary">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-regular fa-calendar text-primary opacity-75"></i>
+                                        <span>{{ attempt.date }}</span>
+                                    </div>
+                                </td>
+                                <td class="fw-semibold text-dark">{{ attempt.topic_name }}</td>
+                                <td class="text-center">
+                                    <div class="d-inline-flex align-items-center gap-2 score-badge">
+                                        <i class="fa-solid fa-trophy text-warning"></i>
+                                        <span
+                                            class="fw-bold {% if (attempt.percentage or 0) >= 90 %}text-gold{% endif %}">
+                                            {{ attempt.score }}/{{ attempt.total_questions }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="progress custom-progress-sm">
+                                            <div class="progress-bar 
+                                                {% if (attempt.percentage or 0) >= 70 %}bg-success-gradient
+                                                {% else %}bg-danger-gradient{% endif %}" role="progressbar"
+                                                style="width: {{ (attempt.percentage or 0)|round|int }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">
+                                            {{ (attempt.percentage or 0)|round|int }}%
+                                        </small>
+                                    </div>
+                                </td>
+                                <td class="text-center pe-4">
+                                    {% if (attempt.percentage or 0) >= 70 %}
+                                    <span class="badge status-pill status-passed">
+                                        Passed
+                                    </span>
+                                    {% else %}
+                                    <span class="badge status-pill status-failed">
+                                        Needs Practice
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center placeholder-card">
+                    <i class="fa-solid fa-clock-rotate-left icon-history"></i>
+                    <h3 class="placeholder-title">No History Yet</h3>
+                    <p class="text-muted mt-2">Take your first quiz to see your progress here!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="section-leaderboard" class="section-content d-none my-5">
+                <div class="text-center placeholder-card">
+                    <i class="fa-solid fa-trophy icon-trophy"></i>
+                    <h3 class="placeholder-title">Leaderboard</h3>
+                    <p class="text-muted mt-2">See where you stand among top students!</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/student_dashboard.js') }}?v=4"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}?v=3"></script>
+
+    <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+        aria-labelledby="offcanvasProfileLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <div class="text-center mb-2">
+                <div class="avatar-large mx-auto mb-2">
+                    <span id="offcanvasUserInitial">U</span>
+                </div>
+                <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
+                <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+            </div>
+
+            <div class="d-grid gap-2 mb-auto">
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                </a>
+                <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                </a>
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
+                </a>
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                </a>
+            </div>
+
+            <div class="mt-2 pt-2 border-top text-center">
+                <button onclick="handleLogout()" class="btn btn-logout w-100 mb-2">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                </button>
+                <div class="brand-name fs-2">PrepWise</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

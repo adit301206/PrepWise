@@ -1,0 +1,8 @@
+Flask
+flask-cors
+supabase
+python-dotenv
+psycopg2-binary
+requests
+pytest
+gotrue
