@@ -79,6 +79,9 @@ def student_dashboard():
             if res:
                 user_id = res['user_id']
     
+    # Initialize defaults (Safe Fallback)
+    daily_count = 0
+    daily_percentage = 0
     history_list = []
     analytics_data = {}
     
