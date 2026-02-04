@@ -659,10 +659,10 @@ def forgot_password_api():
         return jsonify({"error": "Email is required"}), 400
 
     try:
-        # Redirect URL should point to our update-password page
-        # Note: In local dev, ensure Supabase allows localhost:5000/update-password
-        # Force localhost depending on environment to match common whitelist
-        redirect_url = url_for('update_password_page', _external=True).replace("127.0.0.1", "localhost")
+        if os.environ.get('URL'):
+            redirect_url = f"{os.environ.get('URL')}/update-password"
+        else:
+            redirect_url = url_for('update_password_page', _external=True).replace("127.0.0.1", "localhost")
         
         print(f"DEBUG: Sending reset email to {email} with redirect to {redirect_url}")
         
