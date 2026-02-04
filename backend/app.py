@@ -22,7 +22,10 @@ print("------------------------------------------------")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
+# Fix for Render/Heroku (postgres:// -> postgresql://)
 DB_URL = os.environ.get("DATABASE_URL")
+if DB_URL and DB_URL.startswith("postgres://"):
+    DB_URL = DB_URL.replace("postgres://", "postgresql://", 1)
 
 # --- DATABASE HELPER FUNCTIONS ---
 
@@ -392,18 +395,16 @@ def test_db_connection():
 def get_subjects():
     """Fetches all subjects from the database."""
     conn = get_db()
-    print("conn into the subject", conn)
-
-    if not conn:
-        print("conn error into the if condi")
+    if not conn: 
+        # Check if DB_URL was actually set, for better error message
+        if not DB_URL:
+             return jsonify({"error": "DB Connection failed: DATABASE_URL not set in environment."}), 500
         return jsonify({"error": "DB Connection failed"}), 500
     
     try:
         cur = conn.cursor()
-        print("curr was",cur)
         cur.execute("SELECT subject_name FROM subjects ORDER BY subject_id;")
         subjects = [row['subject_name'] for row in cur.fetchall()]
-        print("we are here", subjects)
         cur.close()
         return jsonify(subjects)
     except Exception as e:
