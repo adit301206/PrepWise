@@ -1,0 +1,41 @@
+backend\.env
+.env
+\backend\.env
+
+# --- Python & Flask ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+instance/
+.flaskenv
+.pytest_cache/
+.coverage
+
+# --- Supabase & Secrets ---
+# Crucial: Ignore your actual keys
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Supabase CLI local development files
+# If you run 'supabase init', it creates a 'supabase' folder
+supabase/.branches/
+supabase/.temp/
+supabase/storage/
+# DO NOT ignore supabase/config.toml if you want to share schema config, 
+# but DO ignore it if you hardcode secrets there (not recommended).
+
+# --- Databases (Backup) ---
+*.db
+*.sqlite3
+
+# --- IDEs and OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
