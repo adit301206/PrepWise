@@ -1149,3 +1149,45 @@ body {
 .score-badge i {
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
 }
+
+/* --- Skeleton Loader --- */
+.topics-skeleton {
+    width: 100%;
+    text-align: left;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+    padding: 1rem;
+}
+
+.skeleton-chip {
+    height: 110px; /* Match .topic-chip min-height */
+    background: #f1f5f9;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.skeleton-chip::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    );
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    100% {
+        transform: translateX(100%);
+    }
+}

@@ -163,26 +163,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicsSection = document.getElementById('topics-section');
         const topicsGrid = document.querySelector('.topics-grid');
         const emptyState = document.querySelector('.empty-state');
+        const skeletonLoader = document.querySelector('.topics-skeleton');
 
         // Clear selection when changing subject
         selectedTopics.clear();
-        // updateFloatingBar(); // Removed
 
         // Show loading state or reset
         if (topicsSection) {
             topicsSection.classList.remove('d-none');
+            // Fade in effect
             setTimeout(() => {
                 topicsSection.classList.remove('opacity-0');
                 topicsSection.classList.add('opacity-100');
             }, 50);
         }
 
-        fetch(`/api/topics?subject=${encodeURIComponent(subjectName)}`)
-            .then(res => {
-                if (!res.ok) throw new Error("Network response was not ok");
-                return res.json();
-            })
-            .then(topics => {
+        // 1. Show Skeleton, Hide others
+        if (skeletonLoader) skeletonLoader.classList.remove('d-none');
+        if (topicsGrid) topicsGrid.classList.add('d-none');
+        if (emptyState) emptyState.classList.add('d-none');
+
+        // Add a small artificial delay to show off the skeleton (optional but good for UX feel if API is too fast)
+        const delay = 600; 
+        const fetchPromise = fetch(`/api/topics?subject=${encodeURIComponent(subjectName)}`).then(res => res.json());
+        const delayPromise = new Promise(resolve => setTimeout(resolve, delay));
+
+        Promise.all([fetchPromise, delayPromise])
+            .then(([topics]) => {
+                // 2. Hide Skeleton
+                if (skeletonLoader) skeletonLoader.classList.add('d-none');
+
                 topicsGrid.innerHTML = ''; // Clear old topics
 
                 if (topics.length > 0) {
@@ -232,7 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => {
                 console.error("Error fetching topics:", err);
+                if (skeletonLoader) skeletonLoader.classList.add('d-none');
                 topicsGrid.innerHTML = `<div class="col-12 text-center text-danger">Failed to load topics. Please check your connection or try again.</div>`;
+                topicsGrid.classList.remove('d-none');
             });
     }
 
