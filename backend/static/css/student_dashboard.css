@@ -1150,44 +1150,65 @@ body {
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
 }
 
-/* --- Skeleton Loader --- */
+/* --- Skeleton Loader (LinkedIn Style) --- */
 .topics-skeleton {
     width: 100%;
-    text-align: left;
+    display: contents;
+    /* Allow children to sit in the parent grid if used inside .topics-grid */
+}
+
+/* If used as a standalone container replacing the grid content */
+.skeleton-wrapper {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1.25rem;
     padding: 1rem;
-}
-
-.skeleton-chip {
-    height: 110px; /* Match .topic-chip min-height */
-    background: #f1f5f9;
-    border-radius: 16px;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.skeleton-chip::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    transform: translateX(-100%);
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.6),
-        transparent
-    );
-    animation: skeleton-loading 1.5s infinite;
 }
 
-@keyframes skeleton-loading {
-    100% {
-        transform: translateX(100%);
+.skeleton-card {
+    background: rgba(255, 255, 255, 0.5);
+    /* Slightly more opaque than glass */
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    /* Stack like the real chips */
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    min-height: 110px;
+    /* Match real .topic-chip min-height */
+    box-shadow: none;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+/* The Shimmer Animation Effect */
+.skeleton-shimmer {
+    background: #e2e8f0;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+    to {
+        background-position-x: -200%;
     }
+}
+
+/* The Shapes */
+.skeleton-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    /* Circle */
+    flex-shrink: 0;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 70%;
+    /* Random widths handled in JS, base here */
+    border-radius: 4px;
 }

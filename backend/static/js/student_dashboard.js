@@ -163,40 +163,49 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicsSection = document.getElementById('topics-section');
         const topicsGrid = document.querySelector('.topics-grid');
         const emptyState = document.querySelector('.empty-state');
-        const skeletonLoader = document.querySelector('.topics-skeleton');
 
         // Clear selection when changing subject
         selectedTopics.clear();
 
-        // Show loading state or reset
+        // Show section with fade-in
         if (topicsSection) {
             topicsSection.classList.remove('d-none');
-            // Fade in effect
             setTimeout(() => {
                 topicsSection.classList.remove('opacity-0');
                 topicsSection.classList.add('opacity-100');
             }, 50);
         }
 
-        // 1. Show Skeleton, Hide others
-        if (skeletonLoader) skeletonLoader.classList.remove('d-none');
-        if (topicsGrid) topicsGrid.classList.add('d-none');
-        if (emptyState) emptyState.classList.add('d-none');
+        // 1. GENERATE SKELETON LOADER
+        // We inject it directly into topicsGrid to maintain exact layout dimensions
+        if (topicsGrid) {
+            topicsGrid.classList.remove('d-none'); // Show grid container
+            if (emptyState) emptyState.classList.add('d-none');
 
-        // Add a small artificial delay to show off the skeleton (optional but good for UX feel if API is too fast)
-        const delay = 600; 
+            let skeletonHTML = '';
+            // Generate 9 skeleton cards to fill the grid
+            for (let i = 0; i < 9; i++) {
+                const randomWidth = Math.floor(Math.random() * (80 - 50) + 50);
+                skeletonHTML += `
+                <div class="skeleton-card">
+                    <div class="skeleton-icon skeleton-shimmer"></div>
+                    <div class="skeleton-text skeleton-shimmer" style="width: ${randomWidth}%;"></div>
+                </div>`;
+            }
+            topicsGrid.innerHTML = skeletonHTML;
+        }
+
+        // Add a delay to show off the skeleton (User UX preference)
+        const delay = 800;
         const fetchPromise = fetch(`/api/topics?subject=${encodeURIComponent(subjectName)}`).then(res => res.json());
         const delayPromise = new Promise(resolve => setTimeout(resolve, delay));
 
         Promise.all([fetchPromise, delayPromise])
             .then(([topics]) => {
-                // 2. Hide Skeleton
-                if (skeletonLoader) skeletonLoader.classList.add('d-none');
-
-                topicsGrid.innerHTML = ''; // Clear old topics
+                topicsGrid.innerHTML = ''; // Clear skeletons
 
                 if (topics.length > 0) {
-                    emptyState.classList.add('d-none');
+                    if (emptyState) emptyState.classList.add('d-none');
                     topicsGrid.classList.remove('d-none');
 
                     topics.forEach(topic => {
@@ -235,16 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         topicsGrid.appendChild(chip);
                     });
                 } else {
-                    emptyState.classList.remove('d-none');
+                    if (emptyState) emptyState.classList.remove('d-none');
                     topicsGrid.classList.add('d-none');
                     selectedTopics.clear();
                 }
             })
             .catch(err => {
                 console.error("Error fetching topics:", err);
-                if (skeletonLoader) skeletonLoader.classList.add('d-none');
                 topicsGrid.innerHTML = `<div class="col-12 text-center text-danger">Failed to load topics. Please check your connection or try again.</div>`;
-                topicsGrid.classList.remove('d-none');
             });
     }
 
