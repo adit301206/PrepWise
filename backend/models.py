@@ -105,7 +105,9 @@ class User:
             res = cur.fetchone()
             
             if res and res['total_quizzes'] and res['total_quizzes'] > 0:
-                accuracy = (res['total_score'] / res['total_possible'] * 100) if res['total_possible'] > 0 else 0
+                total_possible = res['total_possible'] or 0
+                total_score = res['total_score'] or 0
+                accuracy = (total_score / total_possible * 100) if total_possible > 0 else 0
                 return {
                     "total_quizzes": res['total_quizzes'],
                     "avg_score": round(res['avg_score'], 1),

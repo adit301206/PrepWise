@@ -82,40 +82,60 @@ def student_dashboard():
     history_list = []
     analytics_data = {}
     
-    if user_id and conn:
-        # OOP: Create User Object
-        current_user = User(conn, user_id)
-        
-        # OOP: Fetch Data through methods
-        raw_history = current_user.get_attempt_history()
-        analytics_data = current_user.get_analytics()
-        
-        # DSA: Use Stack to reverse order (LIFO)
-        history_stack = HistoryStack()
-        history_stack.load_history(raw_history)
-        history_list = history_stack.pop_all() # Most recent attempts first
-        
-        # --- DAILY PROGRESS FEATURE (SQL) ---
-        today = date.today()
-        # Using RealDictCursor, COUNT(*) will be in a key usually named 'count'
-        with conn.cursor() as cur:
-             cur.execute("""
-                SELECT COUNT(*) as count 
-                FROM attempts 
-                WHERE user_id = %s AND attempted_at::date = %s;
-             """, (user_id, today))
-             res = cur.fetchone()
-             daily_count = res['count'] if res else 0
-             
-        daily_goal = 5
-        daily_percentage = int((daily_count / daily_goal) * 100)
-        if daily_percentage > 100: daily_percentage = 100
+    try:
+        if user_id and conn:
+            # OOP: Create User Object
+            current_user = User(conn, user_id)
+            
+            # OOP: Fetch Data through methods
+            raw_history = current_user.get_attempt_history()
+            # Safety check for history
+            if raw_history is None:
+                raw_history = []
+                
+            analytics_data = current_user.get_analytics()
+            
+            # DSA: Use Stack to reverse order (LIFO)
+            history_stack = HistoryStack()
+            history_stack.load_history(raw_history)
+            history_list = history_stack.pop_all() # Most recent attempts first
+            
+            # --- DAILY PROGRESS FEATURE (SQL) ---
+            today = date.today()
+            # Using RealDictCursor, COUNT(*) will be in a key usually named 'count'
+            with conn.cursor() as cur:
+                 cur.execute("""
+                    SELECT COUNT(*) as count 
+                    FROM attempts 
+                    WHERE user_id = %s AND attempted_at::date = %s;
+                 """, (user_id, today))
+                 res = cur.fetchone()
+                 daily_count = res['count'] if res else 0
+                 
+            # Safety Check: Ensure daily_count is not None
+            if daily_count is None:
+                daily_count = 0
+                 
+            daily_goal = 5
+            # Prevent Division by Zero just in case daily_goal is 0 (though unlikely here)
+            if daily_goal > 0:
+                daily_percentage = int((daily_count / daily_goal) * 100)
+            else:
+                daily_percentage = 0
+                
+            if daily_percentage > 100: daily_percentage = 100
 
-    return render_template('student_dashboard.html', 
-                         history=history_list, 
-                         user_stats=analytics_data,
-                         daily_count=daily_count,
-                         daily_percentage=daily_percentage)
+        return render_template('student_dashboard.html', 
+                             history=history_list, 
+                             user_stats=analytics_data,
+                             daily_count=daily_count,
+                             daily_percentage=daily_percentage)
+
+    except Exception as e:
+        print(f"DASHBOARD ERROR: {e}")
+        import traceback
+        traceback.print_exc() # Print full stack trace to terminal
+        return f"An internal error occurred: {e}", 500
 
 @app.route('/teacher-console')
 def teacher_console():
