@@ -392,12 +392,18 @@ def test_db_connection():
 def get_subjects():
     """Fetches all subjects from the database."""
     conn = get_db()
-    if not conn: return jsonify({"error": "DB Connection failed"}), 500
+    print("conn into the subject", conn)
+
+    if not conn:
+        print("conn error into the if condi")
+        return jsonify({"error": "DB Connection failed"}), 500
     
     try:
         cur = conn.cursor()
+        print("curr was",cur)
         cur.execute("SELECT subject_name FROM subjects ORDER BY subject_id;")
         subjects = [row['subject_name'] for row in cur.fetchall()]
+        print("we are here", subjects)
         cur.close()
         return jsonify(subjects)
     except Exception as e:
