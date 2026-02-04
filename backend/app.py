@@ -68,6 +68,7 @@ def student_dashboard():
     # For this demo refactor, we try to find a valid user or use a placeholder/demo logic.
     # Check if a user param is passed, or try to find one from the DB for demonstration.
     user_id = request.args.get('user_id')
+    print("user id", user_id)
     
     conn = get_db()
     
@@ -152,6 +153,7 @@ def analytics():
     # Demo User fallback if no session (same as dashboard)
     # In a real app we'd use session['user_id']
     user_id = request.args.get('user_id')
+ 
     
     if not user_id and conn:
         with conn.cursor() as cur:

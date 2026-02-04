@@ -140,9 +140,9 @@
 
                                 setTimeout(() => {
                                     if (role === 'teacher') {
-                                        window.location.href = "{{ url_for('teacher_console') }}";
+                                        window.location.href = "{{ url_for('teacher_console') }}?user_id=" + result.session.user.id;
                                     } else {
-                                        window.location.href = "{{ url_for('student_dashboard') }}";
+                                        window.location.href = "{{ url_for('student_dashboard') }}?user_id=" + result.session.user.id;
                                     }
                                 }, 2000);
                                 return;
@@ -210,9 +210,9 @@
 
                             setTimeout(() => {
                                 if (userRole === 'teacher') {
-                                    window.location.href = "{{ url_for('teacher_console') }}";
+                                    window.location.href = "{{ url_for('teacher_console') }}?user_id=" + result.session.user.id;
                                 } else {
-                                    window.location.href = "{{ url_for('student_dashboard') }}";
+                                    window.location.href = "{{ url_for('student_dashboard') }}?user_id=" + result.session.user.id;
                                 }
                             }, 2000);
                         } else {
