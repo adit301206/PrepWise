@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - PrepWise</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}?v=1.1">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3 custom-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <!-- Left Side: Go to Dashboard -->
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-dashboard-link">
+                    <i class="fa-solid fa-arrow-left me-2"></i> Go to Dashboard
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <div class="page-badge d-flex align-items-center gap-2">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </div>
+                    <span class="page-title">Performance Analysis</span>
+                </div>
+            </div>
+
+            <!-- Right Side: PrepWise Brand -->
+            <div class="ms-auto d-flex align-items-center">
+                <a href="{{ url_for('index') }}" class="brand-name text-decoration-none">PrepWise</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container py-5 mt-5">
+        <div class="row mb-4 animate-fade-up">
+            <div class="col-12">
+                <h2 class="section-title">Your Learning Journey</h2>
+                <p class="section-subtitle">Comprehensive insights into your quiz performance and progress</p>
+            </div>
+        </div>
+
+        <div class="row g-4 animate-fade-up delay-100">
+            <!-- Card 1: Overall Accuracy (Green) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card card-green h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <span class="badge badge-glass">
+                            {% if overall.accuracy >= 90 %}Excellent
+                            {% elif overall.accuracy >= 70 %}Good
+                            {% else %}Keep Going{% endif %}
+                        </span>
+                    </div>
+                    <h5 class="stat-label horizontal-card-label">Overall Accuracy</h5>
+                    <h2 class="stat-value display-5 fw-bold mb-1">{{ overall.accuracy }}%</h2>
+                    <p class="stat-desc small">Average across all quizzes</p>
+                </div>
+            </div>
+
+            <!-- Card 2: Total Quizzes (Blue) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card card-blue h-100">
+                    <div class="mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <h5 class="stat-label">Total Quizzes</h5>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="stat-value display-5 fw-bold mb-1">{{ overall.total_quizzes }}</h2>
+                    </div>
+                    <p class="stat-desc small">quizzes completed</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Current Streak (Yellow) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card card-yellow h-100">
+                    <div class="mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                    </div>
+                    <h5 class="stat-label">Current Streak</h5>
+                    <h2 class="stat-value display-5 fw-bold mb-1">{{ overall.streak }}</h2>
+                    <p class="stat-desc small">quizzes ≥70% in a row</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Recent Trend (Pink) -->
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card card-pink h-100">
+                    <div class="mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                    </div>
+                    <h5 class="stat-label">Recent Trend</h5>
+                    <h2 class="stat-value display-5 fw-bold mb-1">
+                        {% if overall.trend > 0 %}+{% endif %}{{ overall.trend }}%
+                    </h2>
+                    <p class="stat-desc small">vs average performance</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Details Section -->
+        <div class="row g-4 mt-2 animate-fade-up delay-100">
+            <!-- Left: Performance by Subject (Dynamic List) -->
+            <div class="col-lg-6">
+                <div class="stat-card h-100 p-4 border-0 shadow-sm perf-card">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-book-open text-primary" style="font-size: 1.5rem;"></i>
+                            <h5 class="stat-label section-header-large">Performance by Subject</h5>
+                        </div>
+                        <p class="stat-desc small opacity-75 mb-0 text-muted">Your accuracy across different subjects
+                        </p>
+                    </div>
+
+                    <div class="subject-list-container custom-scrollbar pe-2">
+                        {% for stat in topic_stats %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-end mb-2">
+                                <span class="fw-bold" style="color: #1e293b;">{{ stat.topic }}</span>
+                                <div class="text-end">
+                                    <span class="small text-muted me-2">{{ stat.attempts }} quiz(s)</span>
+                                    <span class="fw-bold" style="color: #1e293b;">{{ stat.accuracy }}%</span>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 5px; background: #e2e8f0;">
+                                <div class="progress-bar rounded-pill 
+                                    {% if stat.accuracy >= 80 %}bg-perf-high
+                                    {% elif stat.accuracy >= 50 %}bg-perf-med
+                                    {% else %}bg-perf-low{% endif %}" role="progressbar"
+                                    style="width: {{ stat.accuracy }}%;" aria-valuenow="{{ stat.accuracy }}"
+                                    aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-center text-muted py-5">No topics attempted yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Performance by Difficulty (Bar Chart) -->
+            <div class="col-lg-6">
+                <div class="stat-card h-100 p-4 border-0 shadow-sm perf-card">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-bolt text-warning" style="font-size: 1.5rem;"></i>
+                            <h5 class="stat-label section-header-large">Accuracy by Topic</h5>
+                        </div>
+                        <p class="stat-desc small opacity-75 mb-0 text-muted">Visual breakdown of your strengths</p>
+                    </div>
+
+                    <div class="text-center p-2">
+                        {% if charts.topic_chart %}
+                        <img src="data:image/png;base64,{{ charts.topic_chart }}" class="img-fluid rounded"
+                            alt="Topic Accuracy Chart">
+                        {% else %}
+                        <p class="text-muted">No chart data available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Progress Section -->
+        <div class="row mt-5 animate-fade-up delay-100">
+            <div class="col-12">
+                <div class="stat-card h-100 p-4 border-0 shadow-sm card-pink">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="icon-box-xl">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h5 class="stat-label fs-2 mb-0">Progress Report</h5>
+                    </div>
+                    <p class="stat-desc small opacity-75 mb-4">Your score history over time</p>
+
+                    <div class="w-100 rounded-3 bg-white p-3 text-center">
+                        {% if charts.progress_chart %}
+                        <img src="data:image/png;base64,{{ charts.progress_chart }}" class="img-fluid rounded"
+                            alt="Progress Chart">
+                        {% else %}
+                        <p class="text-muted py-5">No progress data available yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weakest & Strongest Areas -->
+        <div class="row g-4 mt-2 animate-fade-up delay-100">
+            <!-- Strongest Area -->
+            <div class="col-lg-6">
+                <div class="stat-card h-100 p-4 border-0 shadow-sm card-blue">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-crown text-warning"></i>
+                        </div>
+                        <h5 class="stat-label mb-0 fw-bold">Strongest Topics</h5>
+                    </div>
+
+                    {% if strongest_topics %}
+                    {% for topic in strongest_topics %}
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded-3 bg-opacity-50">
+                        <h6 class="mb-0 fw-bold">{{ topic.topic }}</h6>
+                        <span class="badge bg-success">{{ topic.accuracy }}%</span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Weakest Area -->
+            <div class="col-lg-6">
+                <div class="stat-card h-100 p-4 border-0 shadow-sm card-yellow">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="icon-box-glass">
+                            <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                        </div>
+                        <h5 class="stat-label mb-0 fw-bold">Focus Areas (Weakest)</h5>
+                    </div>
+
+                    {% if weakest_topics %}
+                    {% for topic in weakest_topics %}
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded-3 bg-opacity-50">
+                        <h6 class="mb-0 fw-bold">{{ topic.topic }}</h6>
+                        <span class="badge bg-danger">{{ topic.accuracy }}%</span>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom JS -->
+        <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+</body>
+
+</html>

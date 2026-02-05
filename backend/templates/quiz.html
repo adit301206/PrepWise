@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - PrepWise</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <!-- Left Side: Logo & Brand -->
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
+            </a>
+
+            <!-- Left-aligned Fancy Student Text with spacing -->
+            <div class="d-none d-md-block ms-4">
+                <span class="student-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Student
+                </span>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Right Side: Buttons & Profile -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Mobile only Student Badge -->
+                <div class="d-md-none text-center my-3">
+                    <span class="student-badge">Student Dashboard</span>
+                </div>
+
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Analytics
+                    </a>
+                    <button class="btn btn-settings">
+                        <i class="fa-solid fa-gear me-2"></i>Settings
+                    </button>
+
+                    <div class="profile-badge" title="My Profile">
+                        <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                            <span id="navbarUserInitial" class="fw-bold">U</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container py-5 mt-5">
+        <div class="container">
+            <!-- Header Section -->
+            <div class="text-center mb-5">
+                <h1 class="dashboard-title">Quiz Section</h1>
+                <p class="dashboard-subtitle text-muted">Time to test your skills!</p>
+            </div>
+
+            <!-- Quiz Container -->
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-9">
+                    <div class="quiz-card p-4 p-md-5">
+
+                        <!-- Dynamic Question Content -->
+                        <div id="quiz-questions-container" data-total="{{ questions|length }}">
+                            {% for q in questions %}
+                            <div class="question-slide {% if loop.index0 != 0 %}d-none{% endif %}"
+                                data-index="{{ loop.index0 }}" data-id="{{ q.question_id }}"
+                                data-topic="{{ q.topic_id }}" data-correct="{{ q.correct_option }}">
+                                <!-- Store correct answer here -->
+
+                                <div class="mb-2">
+                                    <span class="question-badge">QUESTION {{ loop.index }} OF {{ questions|length
+                                        }}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-end mb-3">
+                                    <div class="complexity-wrapper">
+                                        <span
+                                            class="text-uppercase text-muted fw-bold small tracking-wide">Complexity:</span>
+                                        <span
+                                            class="fw-bolder text-{{ 'success' if q.difficulty == 'Easy' else 'warning' if q.difficulty == 'Medium' else 'danger' }}">{{
+                                            q.difficulty }}</span>
+                                    </div>
+                                </div>
+
+                                <h3 class="question-text mb-4">{{ q.question_text }}</h3>
+
+                                <div class="options-list d-flex flex-column gap-3">
+                                    <label class="option-card" id="q{{ loop.index0 }}_opt_A" for="q{{ loop.index0 }}_a">
+                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_a"
+                                            value="A" class="option-radio">
+                                        <span class="option-badge">A</span>
+                                        <span class="option-text">{{ q.option_a }}</span>
+                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
+                                    </label>
+
+                                    <label class="option-card" id="q{{ loop.index0 }}_opt_B" for="q{{ loop.index0 }}_b">
+                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_b"
+                                            value="B" class="option-radio">
+                                        <span class="option-badge">B</span>
+                                        <span class="option-text">{{ q.option_b }}</span>
+                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
+                                    </label>
+
+                                    <label class="option-card" id="q{{ loop.index0 }}_opt_C" for="q{{ loop.index0 }}_c">
+                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_c"
+                                            value="C" class="option-radio">
+                                        <span class="option-badge">C</span>
+                                        <span class="option-text">{{ q.option_c }}</span>
+                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
+                                    </label>
+
+                                    <label class="option-card" id="q{{ loop.index0 }}_opt_D" for="q{{ loop.index0 }}_d">
+                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_d"
+                                            value="D" class="option-radio">
+                                        <span class="option-badge">D</span>
+                                        <span class="option-text">{{ q.option_d }}</span>
+                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
+                                    </label>
+                                </div>
+
+                                <!-- Explanation Box (Hidden by default) -->
+                                <div class="explanation-box d-none" id="expl_{{ loop.index0 }}">
+                                    <div class="explanation-title">
+                                        <i class="fa-solid fa-lightbulb"></i> Explanation
+                                    </div>
+                                    <p class="mb-0 text-secondary">{{ q.explanation }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <button class="btn btn-primary w-100 mt-4 py-3 btn-submit-response" id="btn-action"
+                            onclick="handleAction()">
+                            <span id="btn-text">CHECK ANSWER</span>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Background Decoration -->
+        <div class="background-decoration">
+            <div class="circle circle-1"></div>
+            <div class="circle circle-2"></div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+        <!-- Custom JS -->
+        <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+        <!-- Profile Offcanvas -->
+        <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+            aria-labelledby="offcanvasProfileLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column">
+                <!-- User Info -->
+                <div class="text-center mb-2">
+                    <div class="avatar-large mx-auto mb-2">
+                        <span id="offcanvasUserInitial">U</span>
+                    </div>
+                    <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
+                    <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+                </div>
+
+                <!-- Menu Links -->
+                <div class="d-grid gap-2 mb-auto">
+                    <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                    </a>
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                    </a>
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
+                    </a>
+                    <a href="#" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                    </a>
+                </div>
+
+                <!-- Logout -->
+                <div class="mt-2 pt-2 border-top text-center">
+                    <button onclick="handleLogout()" class="btn btn-logout w-100 mb-2">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                    </button>
+                    <div class="brand-name fs-2">PrepWise</div>
+                </div>
+            </div>
+        </div>
+        <!-- Logic -->
+        <script>
+            // Quiz Data
+            const questionsContainer = document.getElementById('quiz-questions-container');
+            const totalQuestions = parseInt(questionsContainer.dataset.total || 0);
+            let currentIndex = 0;
+            let score = 0;
+            let isChecked = false; // State: Has user checked the current answer?
+
+            // DOM Elements
+            const btnAction = document.getElementById('btn-action');
+            const btnText = document.getElementById('btn-text');
+
+            function updateUI() {
+                // Hide all slides
+                document.querySelectorAll('.question-slide').forEach(el => el.classList.add('d-none'));
+                // Show current
+                document.querySelector(`.question-slide[data-index="${currentIndex}"]`).classList.remove('d-none');
+
+                // Reset Button State for new question
+                isChecked = false;
+                btnText.innerText = "CHECK ANSWER";
+                btnAction.classList.remove('btn-success', 'btn-primary');
+                btnAction.classList.add('btn-primary');
+                btnAction.disabled = false;
+            }
+
+            function handleAction() {
+                if (!isChecked) {
+                    // User Checks Answer
+                    checkAnswer();
+                } else {
+                    // User moves to Next
+                    nextQuestion();
+                }
+            }
+
+            function checkAnswer() {
+                console.log(`Checking question index: ${currentIndex}`);
+                const currentSlide = document.querySelector(`.question-slide[data-index="${currentIndex}"]`);
+                if (!currentSlide) {
+                    console.error("Critical: Current slide not found!");
+                    return;
+                }
+
+                const selectedRadio = currentSlide.querySelector('input:checked');
+                console.log("Selected radio:", selectedRadio);
+
+                if (!selectedRadio) {
+                    alert("Please select an option first!");
+                    return;
+                }
+
+                const selectedValue = selectedRadio.value.trim();
+                const correctValue = (currentSlide.dataset.correct || '').trim();
+                console.log(`Selected: '${selectedValue}', Correct: '${correctValue}'`);
+
+                // Disable all radios
+                currentSlide.querySelectorAll('input').forEach(inp => inp.disabled = true);
+
+                // Highlight Logic
+                // Note: The ID is on the LABEL, e.g., #q0_opt_A
+                const selectedLabelId = `#q${currentIndex}_opt_${selectedValue}`;
+                const correctLabelId = `#q${currentIndex}_opt_${correctValue}`;
+
+                const selectedLabel = currentSlide.querySelector(selectedLabelId);
+                const correctLabel = currentSlide.querySelector(correctLabelId);
+                console.log("Labels:", { selectedLabel, correctLabel });
+
+                if (selectedValue === correctValue) {
+                    score++;
+                    if (selectedLabel) selectedLabel.classList.add('option-correct');
+                } else {
+                    if (selectedLabel) selectedLabel.classList.add('option-incorrect');
+                    if (correctLabel) correctLabel.classList.add('option-correct');
+                }
+
+                // Show Explanation
+                const explBox = currentSlide.querySelector('.explanation-box');
+                if (explBox) {
+                    explBox.classList.remove('d-none');
+                } else {
+                    console.warn("Explanation box not found for this slide.");
+                }
+
+                // Update State
+                isChecked = true;
+
+                // Check if last question
+                console.log(`Total: ${totalQuestions}, Current: ${currentIndex}`);
+                if (currentIndex === totalQuestions - 1) {
+                    btnText.innerText = "FINISH QUIZ";
+                    btnAction.classList.remove('btn-primary');
+                    btnAction.classList.add('btn-success');
+                    btnAction.onclick = finishQuiz;
+                } else {
+                    btnText.innerText = "NEXT QUESTION";
+                }
+            }
+
+            function nextQuestion() {
+                if (currentIndex < totalQuestions - 1) {
+                    currentIndex++;
+                    updateUI();
+                } else {
+                    finishQuiz();
+                }
+            }
+
+            async function finishQuiz() {
+                // 1. Get User ID
+                const userJson = localStorage.getItem('user');
+                let userId = null;
+                if (userJson) {
+                    try {
+                        const userObj = JSON.parse(userJson);
+                        userId = userObj.id; // Corrected from userObj.id to userObj.id (assuming structure)
+                        // Make sure auth.js stores {id: "uuid"}
+                    } catch (e) { console.error("Error parsing user", e); }
+                }
+
+                // 2. Get Topic ID (from first question)
+                const firstSlide = document.querySelector('.question-slide[data-index="0"]');
+                const topicId = firstSlide ? firstSlide.dataset.topic : null;
+
+                // 3. Send Data
+                try {
+                    btnAction.disabled = true;
+                    btnText.innerText = "SAVING...";
+
+                    if (userId) { // Only save if we have a user
+                        await fetch('/api/save-quiz-result', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                user_id: userId,
+                                score: score,
+                                total: totalQuestions,
+                                topic_id: topicId
+                            })
+                        });
+                    }
+
+                    // 4. Redirect
+                    window.location.href = `/quiz/result?score=${score}&total=${totalQuestions}`;
+                } catch (error) {
+                    console.error("Save error:", error);
+                    // Redirect anyway so user sees result
+                    window.location.href = `/quiz/result?score=${score}&total=${totalQuestions}`;
+                }
+            }
+
+            // Initialize
+            updateUI();
+        </script>
+</body>
+
+</html>

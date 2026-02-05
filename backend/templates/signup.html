@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - PrepWise</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+</head>
+
+<body>
+
+    <!-- Navbar removed as per request -->
+
+    <main class="signup-container d-flex align-items-center justify-content-center min-vh-100 pt-5">
+        <div class="card signup-card p-4 p-md-5">
+            <div class="text-center mb-3">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="signup-logo mb-2 rounded-circle">
+                <h1 class="signup-title mb-1">Create Account</h1>
+                <p class="text-muted">Join PrepWise today</p>
+            </div>
+
+            <form id="signupForm" onsubmit="event.preventDefault(); handleSignup();">
+                <div class="mb-2">
+                    <label for="fullname" class="form-label fw-bold">Full Name</label>
+                    <input type="text" class="form-control" id="fullname" placeholder="John Doe">
+                </div>
+
+                <div class="mb-2">
+                    <label for="email" class="form-label fw-bold">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="password" placeholder="••••••••">
+                        <i class="fa-solid fa-eye password-toggle-icon"></i>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold d-block mb-2">I am a...</label>
+                    <div class="d-flex gap-3">
+                        <input type="radio" class="btn-check" name="role" id="roleStudent" value="student"
+                            autocomplete="off" checked>
+                        <label class="btn btn-outline-role flex-fill p-2 fw-bold" for="roleStudent">
+                            <i class="fa-solid fa-graduation-cap me-2"></i>Student
+                        </label>
+
+                        <input type="radio" class="btn-check" name="role" id="roleAdmin" value="teacher"
+                            autocomplete="off">
+                        <label class="btn btn-outline-role flex-fill p-2 fw-bold" for="roleAdmin">
+                            <i class="fa-solid fa-chalkboard-user me-2"></i>Teacher
+                        </label>
+                    </div>
+                </div>
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn-signup btn-auth btn-signup-highlight w-100">Sign Up</button>
+                </div>
+                <hr class="my-3">
+                <div class="text-center">
+                    <span class="text-muted">Already have an account? </span>
+                    <a href="{{ url_for('login') }}" class="fw-bold text-decoration-none" style="color: #DB2777;">Login
+                        here</a>
+                </div>
+            </form>
+            <div id="otp-section" class="d-none">
+                <div class="mb-3">
+                    <label for="otp" class="form-label fw-bold">Enter OTP sent to your email</label>
+                    <input type="text" class="form-control" id="otp" placeholder="12345678" maxlength="8">
+                </div>
+                <div class="d-grid mb-3">
+                    <button type="button" class="btn-signup btn-auth btn-signup-highlight w-100"
+                        onclick="handleVerifyOTP()">Verify & Login</button>
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-link text-muted text-decoration-none" onclick="resendOTP()">Resend
+                        OTP</button>
+                </div>
+            </div>
+
+            <script>
+                // Store user data temporarily between steps
+                let userEmail = '';
+                let userRole = '';
+
+                async function handleSignup() {
+                    const fullname = document.getElementById('fullname').value;
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const isTeacher = document.getElementById('roleAdmin').checked;
+                    const role = isTeacher ? 'teacher' : 'student';
+
+                    if (!email || !password) {
+                        alert("Please enter email and password.");
+                        return;
+                    }
+
+                    const signupBtn = document.querySelector('#signupForm button[type="submit"]');
+                    const originalBtnText = signupBtn.innerText;
+                    signupBtn.innerText = "Sending OTP...";
+                    signupBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/signup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: email,
+                                password: password,
+                                data: { full_name: fullname, role: role }
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // Success
+                            if (result.session) {
+                                // CASE 1: Immediate Login (Email Bypassed)
+                                localStorage.setItem('access_token', result.session.access_token);
+                                localStorage.setItem('user', JSON.stringify(result.session.user));
+
+                                const successModal = new bootstrap.Modal(document.getElementById('signupSuccessModal'));
+                                successModal.show();
+
+                                setTimeout(() => {
+                                    if (role === 'teacher') {
+                                        window.location.href = "{{ url_for('teacher_console') }}?user_id=" + result.session.user.id;
+                                    } else {
+                                        window.location.href = "{{ url_for('student_dashboard') }}?user_id=" + result.session.user.id;
+                                    }
+                                }, 2000);
+                                return;
+                            }
+
+                            // CASE 2: OTP Required (Fallback if backend reverts)
+                            userEmail = email;
+                            userRole = role;
+
+                            document.getElementById('signupForm').classList.add('d-none');
+                            document.getElementById('otp-section').classList.remove('d-none');
+
+                            // Update header text to guide user
+                            // Update header text to guide user
+                            document.querySelector('.signup-title').innerText = "Verify Email";
+                            document.querySelector('main p').innerText = `We sent a code to ${email}`;
+
+                            const otpModal = new bootstrap.Modal(document.getElementById('otpSentModal'));
+                            otpModal.show();
+                        } else {
+                            alert("Signup Failed: " + (result.error || "Unknown error"));
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("An error occurred. Please try again.");
+                    } finally {
+                        signupBtn.innerText = originalBtnText;
+                        signupBtn.disabled = false;
+                    }
+                }
+
+                async function handleVerifyOTP() {
+                    const otp = document.getElementById('otp').value;
+                    if (!otp) {
+                        alert("Please enter the OTP.");
+                        return;
+                    }
+
+                    const verifyBtn = document.querySelector('#otp-section button');
+                    verifyBtn.innerText = "Verifying...";
+                    verifyBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/auth/verify-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: userEmail,
+                                otp: otp
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // Store session
+                            if (result.session) {
+                                localStorage.setItem('access_token', result.session.access_token);
+                                localStorage.setItem('user', JSON.stringify(result.session.user));
+                            }
+
+                            // Success: Redirect based on role (Delayed)
+                            const successModal = new bootstrap.Modal(document.getElementById('signupSuccessModal'));
+                            successModal.show();
+
+                            setTimeout(() => {
+                                if (userRole === 'teacher') {
+                                    window.location.href = "{{ url_for('teacher_console') }}?user_id=" + result.session.user.id;
+                                } else {
+                                    window.location.href = "{{ url_for('student_dashboard') }}?user_id=" + result.session.user.id;
+                                }
+                            }, 2000);
+                        } else {
+                            alert("Verification Failed: " + (result.error || "Invalid OTP"));
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("An error occurred during verification.");
+                    } finally {
+                        verifyBtn.innerText = "Verify & Login";
+                        verifyBtn.disabled = false;
+                    }
+                }
+
+                async function resendOTP() {
+                    if (!userEmail) {
+                        alert("No email found. Please sign up again.");
+                        return;
+                    }
+
+                    const resendBtn = document.querySelector('#otp-section .btn-link');
+                    resendBtn.innerText = "Sending...";
+                    resendBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/resend-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: userEmail })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert("OTP sent! Please check your email (and spam folder).");
+                        } else {
+                            alert("Resend Failed: " + (result.error || "Unknown error"));
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("Failed to resend OTP.");
+                    } finally {
+                        resendBtn.innerText = "Resend OTP";
+                        resendBtn.disabled = false;
+                    }
+                }
+            </script>
+        </div>
+    </main>
+
+    <!-- Modal: OTP Sent -->
+    <div class="modal fade" id="otpSentModal" tabindex="-1" aria-labelledby="otpSentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-body">
+                    <div class="mb-3 text-primary">
+                        <i class="fa-solid fa-paper-plane fa-3x"></i>
+                    </div>
+                    <h4 class="modal-title fw-bold mb-2">OTP Sent!</h4>
+                    <p class="text-muted">
+                        We've sent a verification code to your email.<br>
+                        Please enter it to verify your account.
+                    </p>
+                    <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Signup Success -->
+    <div class="modal fade" id="signupSuccessModal" tabindex="-1" aria-labelledby="signupSuccessModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-body">
+                    <div class="mb-3 text-success">
+                        <i class="fa-solid fa-circle-check fa-4x"></i>
+                    </div>
+                    <h4 class="modal-title fw-bold mb-2">Welcome to PrepWise!</h4>
+                    <p class="text-muted">
+                        Your email has been verified successfully.<br>
+                        Redirecting to your dashboard...
+                    </p>
+                    <div class="spinner-border text-primary mt-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/password_toggle.js') }}"></script>
+
+    <style>
+        /* --- Modal Styling with Requested Palette --- */
+        .modal-content {
+            background-color: #1e293b;
+            /* Dark Slate Background */
+            border: 2px solid #bfdbfe;
+            /* Light Blue Border */
+            color: #bfdbfe;
+            /* Light Blue Text */
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(191, 219, 254, 0.2);
+        }
+
+        .modal-title {
+            color: #fde68a;
+            /* Light Yellow Title */
+        }
+
+        .text-muted {
+            color: #e9d5ff !important;
+            /* Light Purple Subtext */
+        }
+
+        .modal-body .text-primary,
+        .modal-body .text-success {
+            color: #fca5a5 !important;
+            /* Light Red/Pink Icon override */
+        }
+
+        /* Spinner color override if needed */
+        .spinner-border {
+            color: #fde68a !important;
+        }
+
+        /* Button override */
+        .modal-body .btn-primary {
+            background-color: #fde68a;
+            color: #1e293b;
+            border: none;
+            font-weight: bold;
+        }
+
+        .modal-body .btn-primary:hover {
+            background-color: #bfdbfe;
+        }
+    </style>
+</body>
+
+</html>

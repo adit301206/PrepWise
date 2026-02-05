@@ -1,0 +1,10 @@
+Flask
+flask-cors
+supabase==2.15.0
+python-dotenv
+psycopg2-binary
+requests
+pytest
+gotrue
+gunicorn
+matplotlib

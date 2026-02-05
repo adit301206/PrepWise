@@ -1,0 +1,117 @@
+    /* Signup Specific Styles - Mirroring Login */
+
+    .signup-container {
+        background:
+            linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+            url("../images/c.jpeg");
+        background-size: cover;
+        background-position: left;
+        background-attachment: fixed;
+        min-height: 100vh;
+        padding-bottom: 80px;
+        font-family: 'Raleway', sans-serif;
+    }
+
+    .signup-card {
+        /* background: #BFDBFE; */
+        /* Navbar color */
+        /* backdrop-filter: blur(1px); */
+        border: 1px solid rgba(241, 213, 213, 0.5);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+        transition: transform 0.3s ease;
+
+        background: rgba(88, 224, 252, 0.15);
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+    }
+
+    .signup-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .signup-logo {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border: 3px solid rgb(135, 34, 34);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .signup-title {
+        font-family: 'Raleway', sans-serif;
+        font-weight: 800;
+        color: #1E293B;
+        font-size: 2rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        border: 2px solid #E2E8F0;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+        /* Ensure consistent bg */
+        cursor: pointer;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #DB2777;
+        box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+        outline: none;
+    }
+
+    .form-label {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    /* Radio Button Styling */
+    .btn-outline-role {
+        border: 2px solid #183254;
+        color: #475569;
+        background-color: white;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-check:checked+.btn-outline-role {
+        background: linear-gradient(135deg, #F9A8D4 0%, #F472B6 100%);
+        color: #881337;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-role:hover {
+        border-color: #F472B6;
+        background-color: #FFF1F2;
+        transform: translateY(-1px);
+    }
+
+    /* Sign Up Button Styling */
+    .btn-signup {
+        background: linear-gradient(135deg, #FDE68A 0%, #FDE68A 100%);
+        /* Yellow gradient */
+        color: #1E293B;
+        /* Dark text for contrast */
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
+        cursor: pointer;
+    }
+
+    .btn-signup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(250, 204, 21, 0.4);
+        filter: brightness(1.05);
+    }

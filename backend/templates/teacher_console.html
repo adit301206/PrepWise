@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Console - PrepWise</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Raleway:wght@700;800&family=Anton&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_console.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <!-- Left Side: Logo & Brand -->
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
+            </a>
+
+            <!-- Left-aligned Fancy Teacher Text with spacing -->
+            <div class="d-none d-md-block ms-4">
+                <span class="teacher-badge">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    Teacher
+                </span>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Right Side: Buttons & Profile -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Mobile only Teacher Badge -->
+                <div class="d-md-none text-center my-3">
+                    <span class="teacher-badge">Teacher Console</span>
+                </div>
+
+                <div class="ms-auto d-flex align-items-center gap-3">
+                    <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Analytics
+                    </a>
+                    <button class="btn btn-settings">
+                        <i class="fa-solid fa-gear me-2"></i>Settings
+                    </button>
+
+                    <div class="profile-badge" title="My Profile">
+                        <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                            <span id="navbarUserInitial" class="fw-bold">U</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="dashboard-container py-5 mt-5">
+        <div class="container">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h1 class="dashboard-title">Admin Console</h1>
+                    <p class="dashboard-subtitle text-muted mb-1">Manage your subjects, topics and quizzes.</p>
+                    <p class="dashboard-subtitle text-muted">Manage and view user details.</p>
+                </div>
+            </div>
+
+            <!-- Admin Navigation -->
+            <div class="admin-nav d-inline-flex align-items-center mb-5">
+                <a href="#" class="nav-item active">
+                    <i class="fa-solid fa-table-columns me-2"></i>Overview
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-user-group me-2"></i>User Management
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-layer-group me-2"></i>Curriculum
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-circle-question me-2"></i>Global Question Bank
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <!-- Total Users Card -->
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="stat-label">TOTAL USERS</span>
+                        <div class="stat-icon icon-blue">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">4</div>
+                    <div class="stat-status">
+                        <i class="fa-solid fa-circle-check me-1"></i>SYSTEM HEALTHY
+                    </div>
+                </div>
+
+                <!-- Subjects Card -->
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="stat-label">SUBJECTS</span>
+                        <div class="stat-icon icon-purple">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">4</div>
+                    <div class="stat-status">
+                        <i class="fa-solid fa-circle-check me-1"></i>SYSTEM HEALTHY
+                    </div>
+                </div>
+
+                <!-- Topics Card -->
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="stat-label">TOPICS</span>
+                        <div class="stat-icon icon-pink">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-status">
+                        <i class="fa-solid fa-circle-check me-1"></i>SYSTEM HEALTHY
+                    </div>
+                </div>
+
+                <!-- Total Questions Card -->
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="stat-label">TOTAL QUESTIONS</span>
+                        <div class="stat-icon icon-yellow">
+                            <i class="fa-regular fa-circle-question"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">13</div>
+                    <div class="stat-status">
+                        <i class="fa-solid fa-circle-check me-1"></i>SYSTEM HEALTHY
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+    <!-- Profile Offcanvas -->
+    <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+        aria-labelledby="offcanvasProfileLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <!-- User Info -->
+            <div class="text-center mb-2">
+                <div class="avatar-large mx-auto mb-2">
+                    <span id="offcanvasUserInitial">U</span>
+                </div>
+                <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
+                <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+            </div>
+
+            <!-- Menu Links -->
+            <div class="d-grid gap-2 mb-auto">
+                <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                </a>
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                </a>
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
+                </a>
+                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                </a>
+            </div>
+
+            <!-- Logout -->
+            <div class="mt-2 pt-2 border-top text-center">
+                <button onclick="handleLogout()" class="btn btn-logout w-100 mb-2">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                </button>
+                <div class="brand-name fs-2">PrepWise</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

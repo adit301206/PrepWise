@@ -1,0 +1,2089 @@
+/* --- GLOBAL HORIZONTAL SCROLL FIX --- */
+html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+:root {
+    --navbar-bg: #BFDBFE;
+    --text-color: #1E293B;
+    --hover-color: #FCA5A5;
+    --accent-color: #FDE68A;
+    --accent-hover: #FCD34D;
+    --font-primary: 'Inter', sans-serif;
+    --font-brand: 'Raleway', sans-serif;
+    --btn-gradient: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%);
+    --btn-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: var(--font-primary);
+    color: var(--text-color);
+    background-color: #E9D5FF;
+}
+
+/* Navbar Customization */
+.custom-navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    padding-left: 0 !important;
+    /* Minimize start padding */
+    padding-right: 0 !important;
+    /* Minimize end padding */
+    border-bottom: 1px solid black;
+    /* Black divider line */
+}
+
+/* Fluid spacing adjustments */
+.container-fluid {
+    width: 100%;
+    /* Ensure content hits edges but leave a tiny breathing room if desired, 
+       or remove px-3 class in HTML if absolutely 0 is needed. 
+       User said "remove space at start", so we rely on small padding. */
+}
+
+/* Logo & Brand */
+.logo {
+    height: 65px;
+    width: 65px;
+    object-fit: cover;
+    border: 2px solid white;
+    /* Optional: adds a nice pop */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.brand-name {
+    font-family: var(--font-brand);
+    font-size: 2.5rem;
+    font-weight: 800;
+    /* Colorful Gradient Text Restored */
+    background: linear-gradient(to right, #2563EB, #9333EA, #DB2777);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    /* Removing the solid shadow to let gradient shine */
+    letter-spacing: -0.5px;
+    transition: all 0.3s ease;
+}
+
+.brand-name:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+
+/* Navigation Links */
+.navbar-nav .nav-link {
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 0.5rem 1rem;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #DB2777 !important;
+    /* Matches gradient end */
+}
+
+/* Animated Underline for Links */
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #DB2777;
+    transition: all 0.5s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 80%;
+}
+
+/* Auth Buttons */
+.btn-auth {
+    font-weight: 700;
+    padding: 0.7rem 1.8rem;
+    border-radius: 50px;
+    /* Pill shape for modern look */
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    background-color: white;
+    /* Default white for Login */
+    color: var(--text-color);
+    box-shadow: var(--btn-shadow);
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Distinct style for Sign Up to emphasize it slightly, or keep same */
+.btn-signup-highlight {
+    background: var(--btn-gradient);
+    /* User asked for yellow accents */
+    color: #1E293B;
+    /* Dark Slate for high contrast on yellow */
+    font-weight: 800;
+    /* Extra bold for better legibility */
+}
+
+.btn-signup-highlight:hover {
+    filter: brightness(1.05);
+}
+
+.btn-get-started {
+    background: linear-gradient(45deg, #6366F1, #A855F7, #EC4899, #6366F1);
+    background-size: 300% 300%;
+    color: white;
+    font-weight: 800;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px rgba(168, 85, 247, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    overflow: hidden;
+    animation: gradientShift 5s ease infinite;
+}
+
+.btn-get-started::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: all 0.6s;
+}
+
+.btn-get-started:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(236, 72, 153, 0.6);
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-get-started:hover::before {
+    left: 100%;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Avatar / Profile */
+.avatar {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.5);
+    /* Semi-transparent */
+    backdrop-filter: blur(8px);
+    /* Glass effect */
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #475569;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+
+    /* Demo Environment Styles */
+    .demo-window {
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        /* Fancy Box Effects */
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            /* Deep Shadow */
+            0 0 0 1px rgba(99, 102, 241, 0.1),
+            /* Thin Ring */
+            0 0 40px -10px rgba(99, 102, 241, 0.3);
+        /* Indigo Glow */
+    }
+
+    /* Spotlight Effect */
+    .demo-window::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+        opacity: 0;
+        transform: scale(0.5);
+        transition: opacity 0.5s, transform 0.5s;
+        pointer-events: none;
+    }
+
+    .demo-window:hover::after {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .demo-window:hover {
+        transform: translateY(-10px);
+        box-shadow:
+            0 35px 60px -15px rgba(0, 0, 0, 0.6),
+            0 0 0 1px rgba(168, 85, 247, 0.3),
+            /* Purple Ring */
+            0 0 60px -5px rgba(168, 85, 247, 0.4);
+        /* Purple Glow */
+        border-color: rgba(168, 85, 247, 0.5);
+    }
+
+    .window-header {
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .dot.red {
+        background-color: #EF4444;
+    }
+
+    .dot.yellow {
+        background-color: #F59E0B;
+    }
+
+    .dot.green {
+        background-color: #10B981;
+    }
+
+    .demo-icon {
+        font-size: 4rem;
+        color: #6366F1;
+        /* Indigo */
+        filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
+        animation: pulse-glow 2s infinite ease-in-out;
+    }
+
+    .demo-star {
+        font-size: 2rem;
+        color: #A855F7;
+        /* Purple */
+        position: absolute;
+        margin-top: -10px;
+        margin-left: -10px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .demo-title {
+        font-family: 'Raleway', sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+
+    .demo-description {
+        color: #94A3B8;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .btn-demo {
+        background: white;
+        color: #1E1B4B;
+        font-weight: 700;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-demo:hover {
+        background: #E0E7FF;
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes pulse-glow {
+
+        0%,
+        100% {
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
+            transform: scale(1);
+        }
+
+        50% {
+            filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.8));
+            transform: scale(1.05);
+        }
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Subtle border */
+}
+
+.avatar:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #FCA5A5;
+    /* User's Pink Shade */
+    transform: translateY(-2px) scale(1.05);
+    /* Lift effect */
+    box-shadow: 0 10px 20px rgba(252, 165, 165, 0.4);
+    /* Soft Pink Glow matching hover */
+    border-color: #FCA5A5;
+}
+
+/* Responsive Toggler */
+.navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.tagline {
+    font-family: 'Anton', sans-serif;
+    font-size: 6rem;
+    /* Massive impact */
+    font-weight: 900;
+    /* Extra Black */
+    color: #312E81;
+    /* Deep Indigo - Colorful but dark/readable */
+    margin: 1rem auto 0;
+    /* Reduced top margin to bring closer to badge */
+    line-height: 1.1;
+    max-width: 1100px;
+    letter-spacing: 2px;
+    /* Tight tracking for modern look */
+    padding: 0 1rem;
+}
+
+.tagline .highlight {
+    background: linear-gradient(to right, #6366F1, #A855F7, #EC4899);
+    /* Indigo -> Purple -> Pink */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    padding-bottom: 0.2em;
+    /* Ensure descenders aren't cut */
+    filter: drop-shadow(0 2px 10px rgba(168, 85, 247, 0.4));
+    /* Glowing effect */
+}
+
+.description {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    color: #475569;
+    /* Slate 600 - readable but softer than black */
+    font-weight: 500;
+    max-width: 800px;
+    margin: 1rem auto 0;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+/* Badge Style */
+.badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    background: #FCA5A5;
+    /* User's Pink Shade */
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #881337;
+    /* Deep Rose for good contrast on pink */
+    box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.badge-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 114, 182, 0.4);
+    background: #FFB3B3;
+    /* Slightly lighter on hover */
+}
+
+/* Cooler Badge Icon */
+.badge-icon {
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
+    /* Fire Gradient */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* Makes gradient visible on icon */
+    filter: drop-shadow(0 2px 4px rgba(221, 36, 118, 0.3));
+    /* Soft glow */
+    animation: blast-off 2s infinite ease-in-out;
+}
+
+@keyframes blast-off {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-3px) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateY(-5px) rotate(0deg) scale(1.1);
+    }
+
+    /* Peak hover with scale */
+    75% {
+        transform: translateY(-3px) rotate(5deg);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+
+
+    /* Override the centered small line from desktop */
+    .navbar-nav .nav-link::after {
+        left: 2.5%;
+        /* Start slightly in */
+        transform: none;
+        /* Remove center transform */
+        width: 0;
+        /* Hidden by default */
+    }
+
+    .navbar-nav .nav-link:hover::after,
+    .navbar-nav .nav-link.active::after {
+        width: 95%;
+        /* Almost full width */
+    }
+
+    .tagline {
+        font-size: 3.5rem;
+        /* Smaller on tablets */
+        letter-spacing: 1px;
+    }
+
+    .description {
+        font-size: 1.1rem;
+        padding: 0 1rem;
+        /* More padding on sides */
+    }
+
+    .badge-pill {
+        font-size: 1rem;
+        padding: 0.5rem 1.2rem;
+    }
+
+    .brand-name {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .tagline {
+        font-size: 2.5rem;
+        /* Much smaller on mobile */
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+
+    .logo {
+        height: 50px;
+        width: 50px;
+    }
+
+    .brand-name {
+        font-size: 1.5rem;
+    }
+
+    /* Stack buttons on very small screens if needed, 
+       but pill buttons usually fit ok. Keep an eye on it. */
+}
+
+/* Demo Environment Styles */
+.demo-window {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+    /* Deep Indigo -> Purple */
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    min-height: 500px;
+    /* Increased Height */
+    display: flex;
+    flex-direction: column;
+    /* Fancy Box Effects */
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(99, 102, 241, 0.15),
+        0 0 60px -10px rgba(99, 102, 241, 0.4);
+}
+
+.demo-content {
+    padding: 4rem 2rem !important;
+    /* Increased Padding */
+    position: relative;
+    z-index: 10;
+}
+
+/* Spotlight Effect */
+.demo-window::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+}
+
+/* Disabled hover effects on container as requested */
+/* 
+.demo-window:hover::after {
+    opacity: 1;
+    transform: scale(1);
+} 
+
+.demo-window:hover {
+   transform: translateY(-10px);
+   ...
+}
+*/
+.demo-window:hover::after {
+    opacity: 0;
+}
+
+.window-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot.red {
+    background-color: #EF4444;
+}
+
+.dot.yellow {
+    background-color: #F59E0B;
+}
+
+.dot.green {
+    background-color: #10B981;
+}
+
+/* Demo Split Layout */
+.demo-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 500px;
+}
+
+.demo-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Left Layer Clip Path (Jagged Edge) */
+.layer-left {
+    clip-path: polygon(0 0,
+            55% 0,
+            52% 15%,
+            57% 30%,
+            50% 45%,
+            55% 60%,
+            48% 75%,
+            52% 90%,
+            45% 100%,
+            0 100%);
+    z-index: 2;
+}
+
+/* Right Layer Clip Path (Inverse Jagged Edge) */
+.layer-right {
+    clip-path: polygon(55% 0,
+            100% 0,
+            100% 100%,
+            45% 100%,
+            52% 90%,
+            48% 75%,
+            55% 60%,
+            50% 45%,
+            57% 30%,
+            52% 15%);
+    z-index: 2;
+}
+
+/* Active Split State */
+/* Active Split State */
+.demo-wrapper.split-active .layer-left {
+    transform: translateX(-60px) rotate(-3deg);
+    /* Increased distance and angle */
+}
+
+.demo-wrapper.split-active .layer-right {
+    transform: translateX(60px) rotate(3deg);
+    /* Increased distance and angle */
+}
+
+/* Removed .demo-window:hover styles to prevent background interaction */
+/* .demo-window:hover { transform... } */
+/* .demo-window:hover::after { opacity... } */
+
+.demo-window:hover {
+    /* Explicitly no transform if it was inherited or sticky */
+    transform: none;
+}
+
+/* Bolt Trigger Styling */
+.bolt-trigger {
+    position: absolute;
+    top: 29%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* Thin Border */
+    /* Rings Container */
+}
+
+/* Pulsating Rings */
+.bolt-trigger::before,
+.bolt-trigger::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid rgba(245, 158, 11, 0.6);
+    /* Amber Ring */
+    top: 0;
+    left: 0;
+    animation: ripple-effect 3s infinite cubic-bezier(0.165, 0.84, 0.44, 1);
+    opacity: 0;
+    z-index: -1;
+}
+
+.bolt-trigger::after {
+    animation-delay: 1.5s;
+    border-color: rgba(244, 63, 94, 0.6);
+    /* Rose Ring */
+}
+
+.demo-spacer {
+    height: 130px;
+    /* Increased to 130px */
+    width: 100%;
+}
+
+.bolt-trigger:hover .demo-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 40px rgba(99, 102, 241, 1));
+    opacity: 0;
+    /* Fade out on hover */
+}
+
+/* New Launch Text Styling */
+.launch-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: max-content;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    /* High Visibility White */
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 2px;
+    pointer-events: none;
+    z-index: 25;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bolt-trigger:hover .launch-text {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.bolt-trigger:active .demo-icon {
+    transform: scale(0.95);
+}
+
+/* Adjust original demo-icon to reset some layout props since it's now in a container */
+.demo-icon {
+    font-size: 10rem;
+    background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #F43F5E 100%);
+    /* Gold -> Amber -> Rose */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
+    animation: pulse-glow 3s infinite ease-in-out;
+    display: block;
+    /* Ensure block for transform */
+    transition: all 0.3s ease;
+}
+
+.demo-rocket {
+    font-size: 3.5rem;
+    color: #F472B6;
+    /* Pink */
+    position: absolute;
+    top: -20px;
+    right: 20%;
+    filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.5));
+    animation: rocket-float 4s ease-in-out infinite;
+    z-index: 2;
+}
+
+.demo-star {
+    font-size: 2.5rem;
+    color: #FFFDD0;
+    /* Cream */
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.9);
+    /* Bright Outline */
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    filter: drop-shadow(0 0 15px rgba(255, 253, 208, 0.8));
+    /* Soft Cream Glow */
+    animation: star-twinkle 3s ease-in-out infinite alternate;
+}
+
+.demo-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    color: white;
+    letter-spacing: -0.5px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.demo-description {
+    color: #E2E8F0;
+    font-size: 1.25rem;
+    line-height: 1.7;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.btn-demo {
+    background: white;
+    color: #312E81;
+    font-weight: 800;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-demo:hover {
+    background: #E0E7FF;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Crush/Implosion Effect */
+.demo-wrapper.crushing {
+    animation: crush-effect 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+    pointer-events: none;
+    /* Prevent extra clicks */
+}
+
+@keyframes crush-effect {
+    0% {
+        transform: scale(1);
+        filter: blur(0);
+        opacity: 1;
+    }
+
+    40% {
+        transform: scale(0.9) skew(5deg);
+        /* Anticipation */
+        filter: blur(2px);
+    }
+
+    100% {
+        transform: scale(0) rotate(45deg);
+        /* Crushed */
+        filter: blur(20px);
+        opacity: 0;
+    }
+}
+
+/* Floating Shapes */
+.floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: 0;
+    opacity: 0.4;
+    animation: float-shape 8s infinite alternate;
+}
+
+.shape-1 {
+    width: 200px;
+    height: 200px;
+    background: #6366F1;
+    top: -50px;
+    left: -50px;
+}
+
+.shape-2 {
+    width: 150px;
+    height: 150px;
+    background: #EC4899;
+    bottom: -30px;
+    right: -30px;
+    animation-delay: -4s;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.6));
+        transform: scale(1);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 45px rgba(245, 158, 11, 0.9));
+        transform: scale(1.08);
+    }
+}
+
+@keyframes ripple-effect {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+        border-width: 4px;
+    }
+
+    50% {
+        opacity: 0.8;
+        border-width: 2px;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+        border-width: 0px;
+    }
+}
+
+@keyframes rocket-float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(45deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(50deg);
+    }
+}
+
+@keyframes star-twinkle {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-10px) scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+@keyframes float-shape {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    100% {
+        transform: translate(30px, 30px);
+    }
+}
+
+/* Gravity Drop Animation */
+.gravity-drop {
+    animation-duration: 0.8s;
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    animation-fill-mode: forwards;
+    pointer-events: none;
+}
+
+/* Modifiers for left/right specific rotation during fall */
+.layer-left.gravity-drop {
+    animation-name: gravityDropLeft;
+}
+
+.layer-right.gravity-drop {
+    animation-name: gravityDropRight;
+}
+
+@keyframes gravityDropLeft {
+    0% {
+        transform: translateX(-60px) translateY(0) rotate(-3deg);
+        opacity: 1;
+    }
+
+    20% {
+        transform: translateX(-65px) translateY(-20px) rotate(-5deg);
+        /* Anticipation */
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    100% {
+        transform: translateX(-150px) translateY(60vh) rotate(-25deg);
+        /* Fall off screen to left */
+        opacity: 0;
+    }
+}
+
+@keyframes gravityDropRight {
+    0% {
+        transform: translateX(60px) translateY(0) rotate(3deg);
+        opacity: 1;
+    }
+
+    20% {
+        transform: translateX(65px) translateY(-20px) rotate(5deg);
+        /* Anticipation */
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    100% {
+        transform: translateX(150px) translateY(60vh) rotate(25deg);
+        /* Fall off screen to right */
+        opacity: 0;
+    }
+}
+
+/* =========================================
+   Features Section Styles
+   ========================================= */
+
+.features-section {
+    position: relative;
+    /* Transparent background as requested */
+}
+
+.features-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 3rem;
+    color: #1E293B;
+    /* Dark Text for Header */
+    margin-bottom: 0.5rem;
+}
+
+.features-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #475569;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Feature Card Container */
+.feature-card {
+    /* Background set by accent classes */
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    color: #1E293B;
+    /* Dark Text for pastel bg */
+    text-align: left;
+    /* Added static shadow */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* Stronger hover shadow */
+}
+
+/* Icon Wrapper */
+.feature-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    background: white;
+    /* White icon bg for contrast */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover .feature-icon-wrapper {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Bouncy effect */
+    /* Icon Shadow */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.feature-card:hover .feature-icon {
+    transform: rotate(15deg) scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    /* Deeper shadow on hover */
+}
+
+.feature-card-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #1E293B;
+    /* Specific dark slate */
+}
+
+.feature-card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #334155;
+    /* Slightly lighter slate for description */
+    font-weight: 500;
+}
+
+/* =========================================
+   Accent Colors (Backgrounds)
+   Palette: #BFDBFE (Blue), #FCA5A5 (Pink), #FDE68A (Yellow)
+   ========================================= */
+
+/* Blue Card */
+.feature-card.accent-blue {
+    background-color: #BFDBFE;
+}
+
+.feature-card.accent-blue .feature-icon {
+    color: #2563EB;
+    /* Darker blue for icon */
+}
+
+.feature-card.accent-blue:hover {
+    background-color: #93C5FD;
+    /* Slightly darker on hover */
+}
+
+/* Pink Card */
+.feature-card.accent-pink {
+    background-color: #FCA5A5;
+}
+
+.feature-card.accent-pink .feature-icon {
+    color: #DB2777;
+    /* Darker pink for icon */
+}
+
+.feature-card.accent-pink:hover {
+    background-color: #F87171;
+}
+
+/* Yellow Card */
+.feature-card.accent-yellow {
+    background-color: #FDE68A;
+}
+
+.feature-card.accent-yellow .feature-icon {
+    color: #D97706;
+    /* Darker yellow/amber for icon */
+}
+
+/* =========================================
+   Divider Styles
+   ========================================= */
+.section-divider {
+    border-color: rgba(30, 41, 59, 0.1);
+    /* Subtle dark slate divider */
+    opacity: 1;
+}
+
+/* =========================================
+   Testimonial Styles
+   ========================================= */
+
+.testimonial-card {
+    background-color: #1E293B;
+    /* Dark Slate to contrast with lavender bg */
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    position: relative;
+    color: white;
+    /* White text for dark card */
+    text-align: left;
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-quote {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 0;
+    font-weight: 400;
+    color: #E2E8F0;
+    /* Light Slate for readability */
+}
+
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+    /* Shadows for depth on dark bg */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.author-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.author-role {
+    font-size: 0.85rem;
+    color: #94A3B8;
+    /* Muted slate */
+    font-weight: 500;
+}
+
+/* =========================================
+   Stats Section Styles
+   ========================================= */
+
+.stat-number {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 3.5rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94A3B8;
+    /* Muted Slate */
+}
+
+/* Text Colors (Darker shades for readability on light bg) */
+.color-blue {
+    color: #2563EB;
+}
+
+.color-pink {
+    color: #DB2777;
+}
+
+.color-yellow {
+    color: #D97706;
+}
+
+/* =========================================
+   How It Works Section Styles
+   ========================================= */
+
+.how-it-works-section {
+    position: relative;
+    /* Removed dark background */
+}
+
+.highlight-text {
+    background: linear-gradient(to right, #6366F1, #A855F7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
+}
+
+/* Steps Styling */
+.step-number {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.2rem;
+}
+
+.step-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #1E293B;
+    /* Dark Slate for Light Mode */
+    margin-bottom: 0.25rem;
+}
+
+.step-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #475569;
+    /* Slate 600 for Light Mode */
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+/* Soft Backgrounds for Numbers */
+.bg-blue-soft {
+    background-color: #DBEAFE;
+}
+
+/* Lighter Blue */
+.bg-pink-soft {
+    background-color: #FCE7F3;
+}
+
+/* Lighter Pink */
+.bg-yellow-soft {
+    background-color: #FEF3C7;
+}
+
+/* Lighter Yellow */
+
+/* Dark Colors for Numbers */
+.color-blue-dark {
+    color: #2563EB;
+}
+
+.color-pink-dark {
+    color: #DB2777;
+}
+
+.color-yellow-dark {
+    color: #D97706;
+}
+
+/* Config Card Mockup - Light Blue Theme (#BFDBFE) */
+.config-card {
+    background-color: #BFDBFE;
+    /* Light Blue Background */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.2);
+    /* Soft blue shadow */
+    border: none;
+    /* Kept gradient border structure */
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    z-index: 1;
+}
+
+/* Gradient Border using Mask Trick */
+.config-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 2px;
+    /* Border width */
+    background: linear-gradient(135deg, #6366F1, #A855F7, #EC4899);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.config-card:hover::after {
+    padding: 3px;
+    /* Thicker border on hover */
+    background: linear-gradient(135deg, #F59E0B, #EC4899, #6366F1);
+    /* Color shift */
+}
+
+/* Remove the old top bar accent */
+.config-card::before {
+    display: none;
+}
+
+.config-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px -10px rgba(99, 102, 241, 0.15);
+    /* Soft colored shadow */
+}
+
+/* Text colors for Light Blue Theme */
+.config-card h5,
+.config-card .text-white {
+    color: #1E293B !important;
+    /* Dark Slate for contrast */
+}
+
+.config-card .fa-clock {
+    color: #475569 !important;
+    /* Slate 600 */
+    opacity: 1 !important;
+}
+
+.mock-input {
+    background-color: white;
+    /* White input for contrast against blue */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    color: #1E293B;
+    /* Dark text */
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+}
+
+
+.mock-input:hover {
+    border-color: #6366F1;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+/* Button Theme Update for Light Blue Card */
+.btn-generate {
+    background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%);
+    /* Deep Blue Gradient */
+    border: none;
+    padding: 1rem;
+    font-weight: 700;
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    /* White text */
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.4);
+    background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%);
+    /* Darker on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 2.5rem;
+    }
+
+    .border-end {
+        border-right: none !important;
+        /* Remove borders on mobile grid */
+    }
+}
+
+/* Accent Backgrounds (Reusing Logic but explicitly defined if needed for mixins) 
+   Assuming the classes .accent-blue, .accent-pink, etc. added previously for feature cards
+   also apply background-color. They do!
+*/
+
+/* Avatar specific dark accents for contrast */
+.bg-blue-dark {
+    background-color: #2563EB;
+}
+
+.bg-pink-dark {
+    background-color: #DB2777;
+}
+
+.bg-yellow-dark {
+    background-color: #D97706;
+}
+
+/* Testimonial specific background overrides if needed, 
+   but .accent-blue on div should handle bg color from previous CSS block.
+*/
+/* =========================================
+   CTA Section Styles
+   ========================================= */
+
+.cta-section {
+    position: relative;
+    padding-bottom: 5rem;
+}
+
+.cta-box {
+    background: linear-gradient(-45deg, #6366F1, #A855F7, #EC4899, #6366F1);
+    /* Animated Gradient */
+    background-size: 400% 400%;
+    animation: gradientShift 10s ease infinite;
+    border-radius: 40px;
+    /* Large rounded corners consistent with image */
+    padding: 5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px -10px rgba(124, 58, 237, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+/* Decorative Floating Orb 1 */
+.cta-box::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Decorative Floating Orb 2 */
+.cta-box::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(30, 27, 75, 0.3) 0%, transparent 70%);
+    /* Darker orb for depth */
+    border-radius: 50%;
+    z-index: -1;
+    animation: float 8s ease-in-out infinite reverse;
+}
+
+.cta-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 2.8rem;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cta {
+    background-color: white;
+    color: #6366F1;
+    /* Indigo Text */
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    color: #4F46E5;
+    background-color: #F8FAFC;
+}
+
+/* =========================================
+   Footer Styles - Enhanced Light Blue Theme
+   ========================================= */
+
+.footer {
+    background-color: #BFDBFE;
+    /* Light Blue */
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    color: #1E293B;
+    position: relative;
+    overflow: hidden;
+    margin-top: 4rem;
+}
+
+/* Decorative top gradient border */
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366F1, #EC4899, #F59E0B);
+}
+
+.footer-logo {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-logo:hover {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.footer-brand-text {
+    font-size: 2.5rem;
+    /* Large brand name */
+    font-weight: 800;
+    font-family: 'Raleway', sans-serif;
+    background: linear-gradient(135deg, #1E40AF, #7C3AED);
+    /* Deep Blue to Purple */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+}
+
+.footer-heading {
+    color: #1E293B;
+    /* Dark Slate */
+    font-weight: 700;
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.footer-link {
+    color: #475569;
+    /* Slate 600 */
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.footer-link:hover {
+    color: #2563EB;
+    /* Blue 600 */
+    padding-left: 5px;
+    font-weight: 600;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    /* White background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1E293B;
+    /* Dark icon */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(30, 41, 59, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.social-icon:hover {
+    background-color: #2563EB;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+}
+
+/* Ensure Logo text is dark in footer if it inherits white */
+.footer .brand-name {
+    color: #1E293B !important;
+}
+
+.footer p.text-white-50 {
+    color: #475569 !important;
+    /* Darker grey for description */
+}
+
+.footer p.small {
+    color: #64748B !important;
+}
+
+/* Profile Avatar (Logged In State) */
+.avatar.logged-in {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    /* Indigo to Violet */
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+}
+
+.avatar.logged-in:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.6);
+}
+
+/* Offcanvas Customization */
+.custom-offcanvas {
+    background: linear-gradient(160deg, #1E1B4B 0%, #312E81 100%);
+    /* Deep Indigo Theme */
+    color: white;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    width: 350px !important;
+    /* Slightly wider for better layout */
+}
+
+.custom-offcanvas .offcanvas-header {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.offcanvas-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #EC4899, #F43F5E);
+    /* Pink to Rose */
+    color: white;
+    border-radius: 50%;
+    /* Circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+    transition: all 0.5s ease-in-out;
+}
+
+.offcanvas-title {
+    font-family: var(--font-brand);
+    font-weight: 700;
+    color: white;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.8;
+}
+
+.btn-close-white:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+/* Offcanvas Navigation */
+.profile-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.profile-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(5px);
+}
+
+.profile-nav .nav-link i {
+    width: 25px;
+    /* Fixed width for icons alignment */
+    text-align: center;
+    color: #A855F7;
+    /* Purple accent */
+    transition: color 0.3s;
+}
+
+.profile-nav .nav-link:hover i {
+    color: #F472B6;
+    /* Pink hover */
+}
+
+/* Logout Button */
+.custom-offcanvas .btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #FCA5A5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.custom-offcanvas .btn-danger:hover {
+    background: #EF4444;
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* --- Offcanvas & Profile Styling --- */
+
+/* Avatar in Navbar */
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #e9d5ff 0%, #bfdbfe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.5s ease-in-out;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar:hover {
+    transform: scale(1.1);
+}
+
+/* Offcanvas Container */
+.custom-offcanvas {
+    background: linear-gradient(160deg, #bfdbfe 0%, #e9d5ff 50%, #fca5a5 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+    font-family: var(--font-primary);
+    overflow-y: auto;
+    /* Allow scroll if needed but hide it */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.custom-offcanvas::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.offcanvas-header .btn-close {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    padding: 0.8rem;
+}
+
+/* Large Avatar in Offcanvas */
+.avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1e293b;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 3px solid white;
+}
+
+/* Profile Links (Cards) */
+.profile-link {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    font-weight: 600;
+    color: #1e293b;
+    transition: all 0.3s ease;
+    padding: 0.8rem 1rem !important;
+    /* Force smaller padding */
+}
+
+.profile-link:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Logout Button */
+.btn-logout {
+    background: #fca5a5;
+    color: #881337;
+    font-weight: 700;
+    border-radius: 50px;
+    padding: 10px;
+    border: 2px solid white;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Dynamic User Avatar Badge */
+.user-avatar-badge {
+    width: 40px;
+    height: 40px;
+    background-color: #6366f1;
+    /* Theme Indigo */
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+    border: 2px solid white;
+    transition: transform 0.2s ease;
+}
+
+.user-avatar-badge:hover {
+    transform: scale(1.1);
+}
+
+
+/* Password Toggle Icon */
+.password-toggle-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #64748b;
+    z-index: 10;
+    transition: color 0.3s ease;
+}
+
+.password-toggle-icon:hover {
+    color: #6366F1;
+}
+
+/* Fix for password inputs with toggle - Ensure space for icon */
+.position-relative .glass-input,
+.position-relative .form-control {
+    padding-right: 40px;
+}
+
+/* Fix vertical centering alignment for glass-input which has default margin */
+.position-relative .glass-input {
+    margin-bottom: 0;
+}
+/* --- RESPONSIVENESS OVERHAUL --- */
+
+/* 1. Global Overflow Protection */
+body, html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* 2. Mobile Media Query (< 768px) */
+@media (max-width: 768px) {
+    
+    /* Typography Scaling */
+    h1, .login-title, .dashboard-title {
+        font-size: 2rem !important; /* Down from 3rem+ */
+    }
+
+    h2, .features-title, .cta-title {
+        font-size: 1.8rem !important;
+    }
+
+    h3 {
+        font-size: 1.5rem !important;
+    }
+
+    .tagline {
+        font-size: 3rem !important; /* Down from 6rem */
+        line-height: 1.2;
+    }
+
+    .description {
+        font-size: 1rem !important;
+        padding: 0 1.5rem;
+    }
+
+    /* Container Spacing */
+    .container {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    /* Card Adjustments */
+    .glass-card, .quiz-card, .placeholder-card, .config-card {
+        width: 100% !important; /* Full width on mobile */
+        padding: 1.5rem !important;
+        margin-bottom: 2rem;
+    }
+
+    /* Navbar/Offcanvas Adjustments */
+    .navbar-brand .logo {
+        width: 45px;
+        height: 45px;
+    }
+
+    .brand-name {
+        font-size: 1.8rem;
+    }
+
+    .custom-offcanvas {
+        width: 75vw !important; /* Easier to tap */
+    }
+
+    /* Form Inputs */
+    .glass-input, .form-control {
+        font-size: 16px; /* Prevents iOS zoom */
+        padding: 0.8rem;
+    }
+
+    /* Hide decorative/complex elements on mobile if needed */
+    .background-decoration {
+        display: none; /* Often cleaner on mobile */
+    }
+
+    /* Quiz Specifics */
+    .options-list {
+        gap: 1rem;
+    }
+
+    .option-card {
+        padding: 1rem;
+    }
+}
+
