@@ -273,28 +273,66 @@
                     return;
                 }
 
-                const selectedValue = selectedRadio.value.trim();
-                const correctValue = (currentSlide.dataset.correct || '').trim();
-                console.log(`Selected: '${selectedValue}', Correct: '${correctValue}'`);
+                const selectedValue = selectedRadio.value.trim().toUpperCase(); // "A", "B", "C", "D"
+                let correctValue = (currentSlide.dataset.correct || '').trim(); // "A" or "[0, 1, 2]"
+
+                console.log(`Debug: Selected '${selectedValue}', Correct Raw '${correctValue}'`);
+
+                // Determine if match
+                let isMatch = false;
+
+                // Scenario 1: correctValue is a single letter (e.g. "B")
+                if (correctValue.length === 1) {
+                    if (selectedValue === correctValue.toUpperCase()) {
+                        isMatch = true;
+                    }
+                }
+                // Scenario 2: correctValue is the full text (e.g. "[0, 1, 2]")
+                else {
+                    // We need to compare specific option text with the correctValue
+                    // Get the label for the selected radio (using the ID we constructed or closest)
+                    // The radio is inside the label .option-card
+                    const selectedLabelCard = selectedRadio.closest('.option-card');
+                    const selectedOptionText = selectedLabelCard.querySelector('.option-text').innerText.trim();
+
+                    console.log(`Debug: Text Comparison -> Selected: '${selectedOptionText}' vs Correct: '${correctValue}'`);
+
+                    if (selectedOptionText === correctValue) {
+                        isMatch = true;
+                    }
+                }
 
                 // Disable all radios
                 currentSlide.querySelectorAll('input').forEach(inp => inp.disabled = true);
 
                 // Highlight Logic
-                // Note: The ID is on the LABEL, e.g., #q0_opt_A
                 const selectedLabelId = `#q${currentIndex}_opt_${selectedValue}`;
-                const correctLabelId = `#q${currentIndex}_opt_${correctValue}`;
-
                 const selectedLabel = currentSlide.querySelector(selectedLabelId);
-                const correctLabel = currentSlide.querySelector(correctLabelId);
-                console.log("Labels:", { selectedLabel, correctLabel });
 
-                if (selectedValue === correctValue) {
+                // If it's a match, just highlight selected as green
+                if (isMatch) {
                     score++;
                     if (selectedLabel) selectedLabel.classList.add('option-correct');
                 } else {
+                    // Wrong answer
                     if (selectedLabel) selectedLabel.classList.add('option-incorrect');
-                    if (correctLabel) correctLabel.classList.add('option-correct');
+
+                    // Try to find and highlight the correct one
+                    // If correctValue is a letter, it's easy
+                    if (correctValue.length === 1) {
+                        const correctLabelId = `#q${currentIndex}_opt_${correctValue.toUpperCase()}`;
+                        const correctLabel = currentSlide.querySelector(correctLabelId);
+                        if (correctLabel) correctLabel.classList.add('option-correct');
+                    } else {
+                        // If correctValue is text, we have to loop through options to find the matching text
+                        const allOptions = currentSlide.querySelectorAll('.option-card');
+                        allOptions.forEach(card => {
+                            const txt = card.querySelector('.option-text').innerText.trim();
+                            if (txt === correctValue) {
+                                card.classList.add('option-correct');
+                            }
+                        });
+                    }
                 }
 
                 // Show Explanation
