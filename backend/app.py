@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from flask import Flask, render_template, g, jsonify, request, url_for
+from flask import Flask, render_template, g, jsonify, request, url_for, session, redirect
 from datetime import date
 from dotenv import load_dotenv
 import uuid
@@ -67,21 +67,14 @@ def student_dashboard():
     # 1. OOP & DSA Integration
     from models import User, HistoryStack
     
-    # In a real app, we'd get user_id from session. 
-    # For this demo refactor, we try to find a valid user or use a placeholder/demo logic.
-    # Check if a user param is passed, or try to find one from the DB for demonstration.
-    user_id = request.args.get('user_id')
-    print("user id", user_id)
+    # AUTH CHECK
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    print("Dashboard accessed by:", user_id)
     
     conn = get_db()
-    
-    # DEMO LOGIC: If no user_id, pick the first one to show the dashboard working
-    if not user_id and conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT user_id FROM users LIMIT 1;")
-            res = cur.fetchone()
-            if res:
-                user_id = res['user_id']
     
     # Initialize defaults (Safe Fallback)
     daily_count = 0
@@ -144,6 +137,11 @@ def student_dashboard():
         traceback.print_exc() # Print full stack trace to terminal
         return f"An internal error occurred: {e}", 500
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route('/teacher-console')
 def teacher_console():
     return render_template('teacher_console.html')
@@ -152,20 +150,13 @@ def teacher_console():
 def analytics():
     from analytics_engine import AnalyticsEngine
     
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
     conn = get_db()
-    # Demo User fallback if no session (same as dashboard)
-    # In a real app we'd use session['user_id']
-    user_id = request.args.get('user_id')
- 
-    
-    if not user_id and conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT user_id FROM users LIMIT 1;")
-            res = cur.fetchone()
-            if res:
-                user_id = res['user_id']
                 
-    if not user_id or not conn:
+    if not conn:
         return "Please log in or ensure database is connected", 401
 
     # OOP: Instantiate Engine
@@ -202,6 +193,9 @@ def start_quiz():
         # Here we expect a simple comma separated string in query param or form for GET/POST consistency handling
         # But per requirements, it's a form POST.
         
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+
         # Handle cases where it might come from URL (GET) for testing transparency if needed, 
         # but strictly following POST requirement:
         topic_ids_str = request.args.get('topic_ids') # Fallback for GET link
@@ -295,6 +289,9 @@ def start_quiz():
 
 @app.route('/quiz')
 def quiz():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
     # If accessed directly via GET with params, we can proxy to start_quiz
     if request.args.get('topic_ids'):
         return start_quiz()
@@ -333,11 +330,14 @@ def quiz_result():
 def save_quiz_result():
     from models import User
     
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
     data = request.json
-    user_id = data.get('user_id')
+    user_id = session['user_id'] # Use Trusted Session ID
     score = data.get('score')
     total = data.get('total')
-    topic_id = data.get('topic_id') # We should pass this from frontend
+    topic_id = data.get('topic_id') 
     
     if not user_id:
         # Fallback if we want to support demo users who haven't logged in? 
@@ -549,6 +549,14 @@ def verify_otp():
             conn.commit()
             cur.close()
             print("✨ User synced to public database successfully.")
+            
+            # 4. CREATE SESSION
+            session['user_id'] = user_id
+            session['user_name'] = full_name
+            session['role'] = role
+            session.permanent = True
+            print("🔐 Session Created For:", user_id)
+            
         else:
             print("⚠️ Database connection failed during sync.")
 
@@ -597,6 +605,12 @@ def login_api():
         meta = user.user_metadata or {}
         role = meta.get('role', 'student') 
         access_token = res.session.access_token
+        
+        # CREATE SESSION
+        session['user_id'] = user.id
+        session['user_email'] = user.email
+        session['role'] = role
+        session.permanent = True
         
         return jsonify({
             "message": "Login successful!",

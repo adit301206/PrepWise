@@ -142,13 +142,8 @@
                                     </label>
                                 </div>
 
-                                <!-- Explanation Box (Hidden by default) -->
-                                <div class="explanation-box d-none" id="expl_{{ loop.index0 }}">
-                                    <div class="explanation-title">
-                                        <i class="fa-solid fa-lightbulb"></i> Explanation
-                                    </div>
-                                    <p class="mb-0 text-secondary">{{ q.explanation }}</p>
-                                </div>
+                                <!-- Hidden Explanation Data Store -->
+                                <div class="explanation-text-hidden d-none">{{ q.explanation }}</div>
                             </div>
                             {% endfor %}
                         </div>
@@ -335,12 +330,59 @@
                     }
                 }
 
-                // Show Explanation
-                const explBox = currentSlide.querySelector('.explanation-box');
-                if (explBox) {
-                    explBox.classList.remove('d-none');
+                // Show Explanation (Pop-Out Animation)
+                const explanationText = currentSlide.querySelector('.explanation-text-hidden').innerText;
+
+                // Identify the Correct Option Element to append to
+                let correctOptionCard = null;
+
+                // Find local ID based on correctValue
+                if (correctValue.length === 1) {
+                    const correctLabelId = `#q${currentIndex}_opt_${correctValue.toUpperCase()}`;
+                    correctOptionCard = currentSlide.querySelector(correctLabelId);
                 } else {
-                    console.warn("Explanation box not found for this slide.");
+                    // Find by text match if needed, though usually correctValue is single letter "A"
+                    const allOptions = currentSlide.querySelectorAll('.option-card');
+                    allOptions.forEach(card => {
+                        const txt = card.querySelector('.option-text').innerText.trim();
+                        if (txt === correctValue) {
+                            correctOptionCard = card;
+                        }
+                    });
+                }
+
+                if (correctOptionCard) {
+                    // Create the Popout Div
+                    const popout = document.createElement('div');
+
+                    // Check screen width for mobile fallback logic class
+                    const isMobile = window.innerWidth <= 900;
+
+                    if (isMobile) {
+                        popout.className = 'explanation-popout-mobile';
+                    } else {
+                        popout.className = 'explanation-popout';
+                    }
+
+                    popout.innerHTML = `
+                        <div>
+                            <span class="explanation-label"><i class="fa-solid fa-lightbulb"></i> Explanation</span>
+                            <div class="explanation-content">${explanationText}</div>
+                        </div>
+                    `;
+
+                    // Remove any existing popouts just in case
+                    correctOptionCard.querySelectorAll('.explanation-popout, .explanation-popout-mobile').forEach(el => el.remove());
+
+                    // Append
+                    correctOptionCard.appendChild(popout);
+
+                    // Trigger Animation (small delay)
+                    if (!isMobile) {
+                        setTimeout(() => {
+                            popout.classList.add('show-explanation');
+                        }, 50);
+                    }
                 }
 
                 // Update State
