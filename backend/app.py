@@ -454,6 +454,7 @@ key: str = os.environ.get("SUPABASE_KEY")
 supabase: Client = None
 if url and key:
     try:
+        print(f"DEBUG: SUPABASE_URL: {url}")
         supabase = create_client(url, key)
     except Exception as e:
         print(f"Supabase Init Error: {e}")
@@ -499,7 +500,11 @@ def signup_api():
                 "user": {
                     "id": auth_response.user.id,
                     "email": auth_response.user.email
-                }
+                },
+                "session": {
+                    "access_token": auth_response.session.access_token,
+                    "user": auth_response.session.user
+                } if auth_response.session else None
             })
         else:
              # Should practically not happen if no exception was raised, but safety check
@@ -518,6 +523,7 @@ def verify_otp():
     otp = data.get('otp')
 
     try:
+        print(f"DEBUG: verify_otp called for {email}")
         # 1. Verify the OTP with Supabase Auth
         print(f"🔐 Verifying OTP for {email}...")
         res = supabase.auth.verify_otp({
@@ -551,6 +557,23 @@ def verify_otp():
             print("✨ User synced to public database successfully.")
         else:
             print("⚠️ Database connection failed during sync.")
+
+        # 4. EDGE FUNCTION: Send Welcome Email
+        try:
+            print(f"📧 Invoking Welcome Email Edge Function for {email}...")
+            # Note: Requires 'RESEND_API_KEY' to be set in Supabase Secrets
+            welcome_data = supabase.functions.invoke("send-welcome-email", invoke_options={
+                "body": {"email": email, "name": full_name}
+            })
+            print(f"📧 Edge Function Raw Response: {welcome_data}")
+            
+            # Check if response data is a dict and has error
+            if isinstance(welcome_data, dict) and 'error' in welcome_data:
+                 print(f"⚠️ Edge Function reported error: {welcome_data['error']}")
+            
+        except Exception as email_error:
+            # We don't want to fail the whole verification if email fails, just log it
+            print(f"⚠️ Failed to invoke welcome email function: {email_error}")
 
         return jsonify({
             "status": "success", 
