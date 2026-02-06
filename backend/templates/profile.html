@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="profile.css">
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sticker-container">
+        <div class="sticker s1">❓</div>
+        <div class="sticker s2">📚</div>
+        <div class="sticker s3">🧠</div>
+        <div class="sticker s4">🎓</div>
+        <div class="sticker s5">⏱️</div>
+        <div class="sticker s6">✅</div>
+        <div class="sticker s7">📝</div>
+        <div class="sticker s8">💡</div>
+        <div class="sticker s9">🏆</div>
+        <div class="sticker s10">🎯</div>
+    </div>
+    <div class="profile-card">
+        <div class="avatar-container">
+            <label for="avatar-upload">
+                <img src="avatar.png" alt="Profile Avatar" class="avatar">
+                <div class="upload-overlay"></div>
+            </label>
+            <input type="file" id="avatar-upload" hidden accept="image/*">
+        </div>
+
+        <form action="#" method="get">
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="label">Name:</span>
+                    <input type="text" placeholder="Your Name" required>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Contact:</span>
+                    <input type="tel" placeholder="+1 (555) 000-0000" pattern="[0-9\-\+\(\)\s]+">
+                </div>
+                <div class="detail-item">
+                    <span class="label">Role:</span>
+                    <input type="text" placeholder="Your Role / Title">
+                </div>
+                <div class="detail-item">
+                    <span class="label">Birthdate:</span>
+                    <input type="date" required>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Bio:</span>
+                    <textarea placeholder="Tell us about yourself..." rows="5"></textarea>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Feedback:</span>
+                    <textarea placeholder="Share your feedback..." rows="3"></textarea>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Rating:</span>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5"
+                            title="5 stars">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4"
+                            title="4 stars">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3"
+                            title="3 stars">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2"
+                            title="2 stars">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1"
+                            title="1 star">★</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Feedback Script -->
+    <script>
+        const form = document.querySelector('form');
+        const submitBtn = document.querySelector('.btn-primary');
+        const originalBtnText = submitBtn.innerText;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Simulating API call/processing
+            submitBtn.innerText = 'Saving...';
+            submitBtn.style.opacity = '0.7';
+
+            setTimeout(() => {
+                // Success Feedback
+                submitBtn.innerText = 'Saved Successfully!';
+                submitBtn.style.backgroundColor = '#10B981'; // Success Green
+                submitBtn.style.borderColor = '#10B981';
+                submitBtn.style.opacity = '1';
+
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.style.borderColor = '';
+                    form.reset();
+                }, 3000);
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
