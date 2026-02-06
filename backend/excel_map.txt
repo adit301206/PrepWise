@@ -1,0 +1,33 @@
+--- ROW 18 ---
+Col 0: 16
+Col 1: 1
+Col 2: Which Act introduced local representation in the Indian(Central) Legislative Council for the first time?
+Col 3: d
+Col 4: 1
+Col 5: Regulating Act, 1773
+Col 6: Pitt’s India Act, 1784
+Col 7: Charter Act, 1833
+Col 8: Charter Act, 1853
+
+--- ROW 19 ---
+Col 0: 17
+Col 1: 1
+Col 2: Dyarchy was introduced under which Act:
+Col 3: c
+Col 4: 1
+Col 5: Indian Council Act, 1909
+Col 6: Government of India Act, 1858
+Col 7: Government of India Act, 1919
+Col 8: Government of India Act, 1935
+
+--- ROW 20 ---
+Col 0: 18
+Col 1: 1
+Col 2: Government of India Act,1935 provided for the establishment of:
+Col 3: a
+Col 4: 1
+Col 5: Federal Court
+Col 6: Supreme Court
+Col 7: Legislative Council
+Col 8: Public Service Commision
+

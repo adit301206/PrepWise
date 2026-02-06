@@ -181,35 +181,26 @@ def analytics():
 @app.route('/start-quiz', methods=['GET', 'POST'])
 def start_quiz():
     """
-    Adaptive Quiz Algorithm (SSR)
-    1. Receives selected topic IDs.
-    2. Calculates difficulty mix based on user history.
-    3. Fetches randomized questions.
-    4. Renders quiz.html directly.
+    Adaptive Quiz Algorithm (Bucket Filling)
+    1. Fetches ALL questions for selected topics.
+    2. Filters into Easy/Medium/Hard lists.
+    3. Fills buckets (50/30/20) with overflow handling.
+    4. Ensures user gets 'total_questions' if enough exist in DB.
     """
+    import random
     try:
         # 1. Get Data from Form
-        # topic_ids comes as "1,2,3" string or list depending on implementation
-        # Here we expect a simple comma separated string in query param or form for GET/POST consistency handling
-        # But per requirements, it's a form POST.
-        
         if 'user_id' not in session:
             return redirect(url_for('login'))
 
-        # Handle cases where it might come from URL (GET) for testing transparency if needed, 
-        # but strictly following POST requirement:
-        topic_ids_str = request.args.get('topic_ids') # Fallback for GET link
+        topic_ids_str = request.args.get('topic_ids')
         if request.method == 'POST':
-             # It might be in form as 'topics' or we might pass it differently. 
-             # The dashboard JS does a window.location = ... which is a GET.
-             # USER REQUESTED: <form action="/start-quiz" method="POST">
-             # BUT dashboard JS currently uses GET redirection. 
-             # I will parse from args if GET, or form if POST to be robust.
+             # Check form for IDs if POST
+             # (Frontend redirection might largely rely on GET parameters currently, but handling form input is robust)
              pass 
         
-        # Supporting both for now but focusing on the requested logic
         if not topic_ids_str:
-            topic_ids_str = request.form.get('topic_ids_hidden') # If we use a hidden input
+            topic_ids_str = request.form.get('topic_ids_hidden')
 
         if not topic_ids_str:
              return "No topics selected", 400
@@ -219,72 +210,101 @@ def start_quiz():
         conn = get_db()
         cur = conn.cursor()
 
-        # 2. Adaptive Logic (Strict Distribution)
-        # Get total questions requested by user (Default to 10)
+        # 2. Get Total Questions Requested
         try:
              total_questions = int(request.form.get('num_questions', 10))
         except ValueError:
              total_questions = 10
 
-        print(f"DEBUG: User requested {total_questions} questions")
+        print(f"DEBUG: User requested {total_questions} questions from topics {topic_ids}")
 
-        # Calculate Ratios (The Remainder Method)
-        # 1. Calculate the first two
-        n_easy = int(total_questions * 0.5)   # 50%
-        n_med = int(total_questions * 0.3)    # 30%
-      
-        # 2. Force the last one to be the remainder (Ensures Sum == Total)
-        n_hard = total_questions - (n_easy + n_med)
-
-        # Safety check for very small numbers
-        if n_hard < 0: n_hard = 0
-
-        
-        # 3. Fetch Questions Randomly
-        # We need to distribute these counts across the selected topics.
-        # Strategy: Pool all questions from selected topics, then pick per difficulty.
-        
+        # 3. Fetch ALL Questions for these topics
+        # We fetch everything first to handle the mixing logic in Python
         topic_placeholders = ','.join(['%s'] * len(topic_ids))
-        
-        quiz_questions = []
-        
-        # Fetch Easy
         cur.execute(f"""
             SELECT question_id, topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, explanation 
             FROM questions 
-            WHERE topic_id IN ({topic_placeholders}) AND difficulty = 'Easy'
-            ORDER BY RANDOM() LIMIT %s;
-        """, (*topic_ids, n_easy))
-        quiz_questions.extend(cur.fetchall())
-        
-        # Fetch Medium
-        cur.execute(f"""
-            SELECT question_id, topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, explanation 
-            FROM questions 
-            WHERE topic_id IN ({topic_placeholders}) AND difficulty = 'Medium'
-            ORDER BY RANDOM() LIMIT %s;
-        """, (*topic_ids, n_med))
-        quiz_questions.extend(cur.fetchall())
-
-        # Fetch Hard
-        cur.execute(f"""
-            SELECT question_id, topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, explanation 
-            FROM questions 
-            WHERE topic_id IN ({topic_placeholders}) AND difficulty = 'Hard'
-            ORDER BY RANDOM() LIMIT %s;
-        """, (*topic_ids, n_hard))
-        quiz_questions.extend(cur.fetchall())
-        
+            WHERE topic_id IN ({topic_placeholders});
+        """, tuple(topic_ids))
+        all_questions = cur.fetchall()
         cur.close()
-        
-        # random.shuffle(quiz_questions) # Shuffle the final mix so difficulties aren't clumped
-        import random
-        random.shuffle(quiz_questions)
 
-        # 4. Render Template
-        return render_template('quiz.html', questions=quiz_questions)
+        if not all_questions:
+            return render_template('quiz.html', questions=[])
+
+        # 4. Categorize & Shuffle
+        easy_q = [q for q in all_questions if q['difficulty'] == 'Easy']
+        medium_q = [q for q in all_questions if q['difficulty'] == 'Medium']
+        hard_q = [q for q in all_questions if q['difficulty'] == 'Hard']
+        
+        # New: Handle Uncategorized (NULL difficulty)
+        uncategorized_q = [q for q in all_questions if not q['difficulty']]
+
+        random.shuffle(easy_q)
+        random.shuffle(medium_q)
+        random.shuffle(hard_q)
+        random.shuffle(uncategorized_q)
+
+        # 5. Calculate Selection Targets
+        n_easy_target = int(total_questions * 0.5)  # 50%
+        n_med_target = int(total_questions * 0.3)   # 30%
+        n_hard_target = total_questions - (n_easy_target + n_med_target) # Remainder (approx 20%)
+
+        print(f"DEBUG: Targets -> Easy: {n_easy_target}, Med: {n_med_target}, Hard: {n_hard_target}")
+
+        final_questions = []
+
+        # Step A: Fill Easy
+        # Take up to target, or whatever we have
+        taken_easy = easy_q[:n_easy_target]
+        final_questions.extend(taken_easy)
+        
+        # Calculate overflow (if we wanted 5 but got 3, we need 2 more)
+        missing_from_easy = n_easy_target - len(taken_easy)
+        
+        # Step B: Fill Medium (Target + Overflow from Easy)
+        needed_med = n_med_target + missing_from_easy
+        taken_med = medium_q[:needed_med]
+        final_questions.extend(taken_med)
+
+        # Calculate overflow
+        missing_from_med = needed_med - len(taken_med)
+
+        # Step C: Fill Hard (Target + Overflow from prev)
+        needed_hard = n_hard_target + missing_from_med
+        taken_hard = hard_q[:needed_hard]
+        final_questions.extend(taken_hard)
+
+        # Step D: Final Overflow (If Hard is also empty/short)
+        # We might still be short if Hard list was small OR if we only have uncategorized questions.
+        # Grab from any remaining leftovers in Easy/Medium/Hard lists AND uncategorized.
+        
+        current_count = len(final_questions)
+        if current_count < total_questions:
+            needed = total_questions - current_count
+            print(f"DEBUG: Still need {needed} questions. Checking leftovers...")
+            
+            # Identify leftovers (questions that weren't picked)
+            leftovers = []
+            if len(easy_q) > len(taken_easy): leftovers.extend(easy_q[len(taken_easy):])
+            if len(medium_q) > len(taken_med): leftovers.extend(medium_q[len(taken_med):])
+            if len(hard_q) > len(taken_hard): leftovers.extend(hard_q[len(taken_hard):])
+            
+            # Add all uncategorized to leftovers
+            leftovers.extend(uncategorized_q)
+            
+            random.shuffle(leftovers)
+            final_questions.extend(leftovers[:needed])
+
+        # Final Shuffle to mix difficulties
+        random.shuffle(final_questions)
+        
+        print(f"DEBUG: Generated {len(final_questions)} questions.")
+
+        return render_template('quiz.html', questions=final_questions)
 
     except Exception as e:
+        print(f"QUIZ FACTORY ERROR: {e}")
         return f"Error generating quiz: {str(e)}", 500
 
 @app.route('/quiz')

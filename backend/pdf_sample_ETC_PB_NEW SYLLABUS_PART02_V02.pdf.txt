@@ -1,0 +1,46 @@
+Sr. No Unit_numberquestion_text answer_text marksoption1 option2 option3 option4
+1 6 Professional effectiveness mainly focuses on 
+improving: Soft skills, habits, and mindset 1 Only technical skills Only communication skills Soft skills, habits, and mindset Entertainment skills
+2 6 Arriving early for meetings shows: Respect and reliability 1 Fear Respect and reliability Overconfidence Laziness
+3 6 Ideal arrival time before meetings should be: 10–15 minutes early 1 Exactly on time 1–2 minutes early 10–15 minutes early 30 minutes early
+4 6 Which tool is used for task tracking and 
+management? Jira 1 Photoshop Jira VLC Player WhatsApp
+5 6 Breaking big projects into small tasks helps in: Better time management 1 Confusion Delay Better time management Laziness
+6 6 If delay is expected, what should you do? Inform team early 1 Hide the problem Inform team early Ignore deadline Quit work
+7 6 Morning planning helps in: Aligning daily priorities 1 Sleeping more Aligning daily priorities Entertainment Avoiding work
+8 6 Asking questions during code review helps to: Understand system design 1 Waste time Show off Understand system design Avoid work
+9 6 Self-learning mainly develops: Independence 1 Laziness Dependency Independence Fear
+10 6 Official documentation is useful for: Learning best practices 1 Entertainment Learning best practices Gaming Time pass
+11 6 Which platform provides online technical courses? Coursera 1 Netflix Coursera Instagram Spotify
+12 6 Open-source contribution helps in: Building network 1 Isolation Building network Reducing skills Losing confidence
+13 6 Before suggesting innovation, you should first: Understand existing process 1 Criticize system Understand existing process Reject rules Skip training
+14 6 Credibility is built by: Delivering work consistently 1 Talking more Delivering work consistently Complaining Taking leaves
+15 6 Data-backed ideas are important because they: Increase acceptance 1 Look attractive Waste time Increase acceptance Confuse management
+16 6 Best time to suggest ideas is during: Brainstorming or meetings 1 Lunch break High pressure deadlines Brainstorming or meetings Office exit time
+17 6 SOP stands for: Standard Operating Procedures 1 System Operating Plan Standard Operating Procedures Software Output Program Service Order Process
+18 6 Which behavior reflects a positive professional 
+attitude? Avoiding teamwork 1 Complaining about tasks Avoiding teamwork Accepting feedback and improving Ignoring mistakes
+19 6 Learning from seniors helps in: Experience gain 1 Ego building Experience gain Time waste Conflict
+20 6 Jugaad mindset means: Creative problem solving 1 Cheating Creative problem solving Avoiding work Breaking rules
+21 6 Most valuable asset for professionals is: Time 1 Mobile Laptop Time Money
+22 6 Technology growth requires professionals to: Keep learning continuously 1 Stop learning Ignore trends Keep learning continuously Avoid updates
+23 6 Reputation at workplace is built by: Consistent delivery 1 Talking more Consistent delivery Arguing Showing attitude
+24 6 Professional journey is compared to: Marathon 1 Race Sprint Marathon Game
+25 6 Positive attitude helps in: Handling challenges 1 Handling challenges Creating stress Avoiding work Losing focus
+26 6 Persistence and dedication lead to: Success 1 Failure Confusion Success Delay
+27 6 Following SOP in an organization mainly helps to: Maintain consistency and quality of work 1 Increase confusion Maintain consistency and quality of work Reduce teamwork Slow down performance
+28 6 A proactive intern will: Take initiative and learn new skills 1 Wait for instructions always Avoid responsibility Take initiative and learn new skills Only complete assigned tasks
+29 6 What should a fresher do when facing difficulty in a 
+task? Ask for guidance and try to learn 1 Quit the task Ignore the problem Ask for guidance and try to learn Blame teammates
+30 6 Which quality helps in long-term career growth? Continuous learning attitude 1 Overconfidence Laziness Continuous learning attitude Avoiding teamwork
+Sr. No Unit_numberquestion_text answer_text marksoption1 option2 option3 option4
+1 7 Why is a professional phone greeting important for 
+freshers? It creates a positive first impression 1 It saves time It creates a positive first impression It allows casual talk It hides nervousness
+2 7 What is the best way for freshers to handle a missed 
+call from senior/HR?
+Return call within working hours + 
+apologize 1 Ignore if not urgent Return call within working hours + apologize Ask 'Who is this?' Send missed call back
+3 7 What should freshers avoid in official 
+WhatsApp/SMS? Emojis, slang, memes 1 Polite language Emojis, slang, memes Short replies Using company group
+4 7 What must be the tone of an email? 4–6 lines with clear purpose 1 One-liner 4–6 lines with clear purpose 10+ lines Long stories
+5 7 Correct email tone for freshers? Polite, neutral, no anger or slang 1 Write in anger Polite, neutral, no anger or slang Use emojis Includ
