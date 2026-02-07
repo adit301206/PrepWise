@@ -138,10 +138,17 @@ class QuizManager {
                 tile.classList.add('correct');
             }
 
-            tile.innerHTML = `
-                <div class="option-marker">${letter}</div>
-                <div class="option-text">${optText}</div>
-            `;
+            const marker = document.createElement('div');
+            marker.className = 'option-marker';
+            marker.textContent = letter;
+
+            const text = document.createElement('div');
+            text.className = 'option-text';
+            text.textContent = optText;
+
+            tile.innerHTML = ''; // Clear just in case
+            tile.appendChild(marker);
+            tile.appendChild(text);
 
             tile.onclick = () => this.selectOption(letter);
             this.dom.optionsBox.appendChild(tile);
