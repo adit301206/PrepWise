@@ -1,3 +1,0 @@
-Supabase client initialized.
-Attempting signup for test_debug_4267@example.com...
-Signup FAILED: Error sending confirmation email

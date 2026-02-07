@@ -164,6 +164,7 @@ def analytics():
     
     # OOP: Fetch Data via Methods
     topic_stats = engine.process_topic_performance()
+    subject_stats = engine.get_subject_performance() # NEW: Fetch by Subject
     weakest_topics = engine.get_weakest_areas()
     strongest_topics = engine.get_strongest_areas()
     overall_stats = engine.get_overall_stats()
@@ -174,6 +175,7 @@ def analytics():
     return render_template('analytics.html', 
                          overall=overall_stats,
                          topic_stats=topic_stats,
+                         subject_stats=subject_stats, # NEW: Pass by Subject
                          weakest_topics=weakest_topics,
                          strongest_topics=strongest_topics,
                          charts=charts)

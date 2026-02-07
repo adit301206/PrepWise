@@ -38,6 +38,35 @@ class AnalyticsEngine:
             cur.execute(query, (self.user_id,))
             return cur.fetchall()
 
+    def get_subject_performance(self):
+        """
+        Calculates average score per Subject.
+        SQL: Joins attempts -> topics -> subjects and groups by subject_name.
+        """
+        query = """
+            SELECT s.subject_name, AVG(a.score) as avg_score, COUNT(a.attempt_id) as attempts
+            FROM attempts a
+            JOIN topics t ON a.topic_id = t.topic_id
+            JOIN subjects s ON t.subject_id = s.subject_id
+            WHERE a.user_id = %s
+            GROUP BY s.subject_name
+            ORDER BY avg_score DESC
+            LIMIT 5;
+        """
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(query, (self.user_id,))
+            results = cur.fetchall()
+            
+            # Format results for template
+            formatted = []
+            for row in results:
+                formatted.append({
+                    "subject": row['subject_name'],
+                    "accuracy": round(row['avg_score'], 1) if row['avg_score'] else 0,
+                    "attempts": row['attempts']
+                })
+            return formatted
+
     def process_topic_performance(self):
         """
         DSA: Uses a Hash Map (Dictionary) to aggregate scores by topic.

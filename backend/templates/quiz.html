@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz - PrepWise</title>
+    <title>Quiz Session - PrepWise</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- Google Fonts: Inter and Outfit -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -22,16 +22,22 @@
 
 <body>
 
+    <!-- Background Animation -->
+    <div class="background-decoration">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- PRESERVED NAVBAR (DO NOT TOUCH) -->
+    <!-- Navbar (Synced with Student Dashboard) -->
     <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
         <div class="container-fluid px-3 px-md-4">
-            <!-- Left Side: Logo & Brand -->
             <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
                     class="logo rounded-circle">
                 <span class="brand-name">PrepWise</span>
             </a>
 
-            <!-- Left-aligned Fancy Student Text with spacing -->
             <div class="d-none d-md-block ms-4">
                 <span class="student-badge">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -39,422 +45,177 @@
                 </span>
             </div>
 
+            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile">
+                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                    <span id="navbarUserInitial" class="fw-bold">U</span>
+                </div>
+            </div>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Right Side: Buttons & Profile -->
             <div class="collapse navbar-collapse" id="navbarContent">
-                <!-- Mobile only Student Badge -->
-                <div class="d-md-none text-center my-3">
-                    <span class="student-badge">Student Dashboard</span>
-                </div>
+                <div class="ms-auto d-flex align-items-center gap-3 me-3">
+                    <!-- Mobile Sidebar Toggle (Integrated) -->
+                    <button class="btn btn-outline-primary d-lg-none w-100 my-2"
+                        onclick="document.querySelector('.quiz-sidebar').classList.toggle('show')">
+                        <i class="fa-solid fa-list-ol"></i> Q-Palette
+                    </button>
 
-                <div class="ms-auto d-flex align-items-center gap-3">
                     <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
                         <i class="fa-solid fa-chart-pie me-2"></i>Analytics
                     </a>
                     <button class="btn btn-settings">
                         <i class="fa-solid fa-gear me-2"></i>Settings
                     </button>
-
-                    <div class="profile-badge" title="My Profile">
-                        <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
-                            <span id="navbarUserInitial" class="fw-bold">U</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Sidebar (Question Palette) -->
+    <aside class="quiz-sidebar" id="quizSidebar">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Question Palette</h5>
+            <!-- Close btn for mobile -->
+            <button class="btn btn-sm btn-icon d-lg-none"
+                onclick="document.querySelector('.quiz-sidebar').classList.remove('show')">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <p class="text-muted small">Jump to any question instantly.</p>
+
+        <div id="sidebar-grid" class="question-grid">
+            <!-- JS will populate: <div class="q-badge">1</div> -->
+        </div>
+
+        <div class="mt-4 small">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="q-badge" style="width:15px;height:15px;font-size:10px;"></div> Pending
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="q-badge active" style="width:15px;height:15px;font-size:10px;"></div> Current
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="q-badge solved-correct" style="width:15px;height:15px;font-size:10px;"></div> Correct
+            </div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="q-badge solved-incorrect" style="width:15px;height:15px;font-size:10px;"></div> Incorrect
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="q-badge skipped" style="width:15px;height:15px;font-size:10px;"></div> Skipped
+            </div>
+        </div>
+    </aside>
+
     <!-- Main Content -->
-    <main class="dashboard-container py-5 mt-5">
-        <div class="container">
-            <!-- Header Section -->
-            <div class="text-center mb-5">
-                <h1 class="dashboard-title">Quiz Section</h1>
-                <p class="dashboard-subtitle text-muted">Time to test your skills!</p>
-            </div>
+    <main class="quiz-content-wrapper mt-5 pt-5">
+        <div class="container-fluid" style="max-width: 900px;">
 
-            <!-- Quiz Container -->
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-9">
-                    <div class="quiz-card p-4 p-md-5">
-
-                        <!-- Dynamic Question Content -->
-                        <div id="quiz-questions-container" data-total="{{ questions|length }}">
-                            {% for q in questions %}
-                            <div class="question-slide {% if loop.index0 != 0 %}d-none{% endif %}"
-                                data-index="{{ loop.index0 }}" data-id="{{ q.question_id }}"
-                                data-topic="{{ q.topic_id }}" data-correct="{{ q.correct_option }}">
-                                <!-- Store correct answer here -->
-
-                                <div class="mb-2">
-                                    <span class="question-badge">QUESTION {{ loop.index }} OF {{ questions|length
-                                        }}</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-end mb-3">
-                                    <div class="complexity-wrapper">
-                                        <span
-                                            class="text-uppercase text-muted fw-bold small tracking-wide">Complexity:</span>
-                                        <span
-                                            class="fw-bolder text-{{ 'success' if q.difficulty == 'Easy' else 'warning' if q.difficulty == 'Medium' else 'danger' }}">{{
-                                            q.difficulty }}</span>
-                                    </div>
-                                </div>
-
-                                <h3 class="question-text mb-4">{{ q.question_text }}</h3>
-
-                                <div class="options-list d-flex flex-column gap-3">
-                                    <label class="option-card" id="q{{ loop.index0 }}_opt_A" for="q{{ loop.index0 }}_a">
-                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_a"
-                                            value="A" class="option-radio">
-                                        <span class="option-badge">A</span>
-                                        <span class="option-text">{{ q.option_a }}</span>
-                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
-                                    </label>
-
-                                    <label class="option-card" id="q{{ loop.index0 }}_opt_B" for="q{{ loop.index0 }}_b">
-                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_b"
-                                            value="B" class="option-radio">
-                                        <span class="option-badge">B</span>
-                                        <span class="option-text">{{ q.option_b }}</span>
-                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
-                                    </label>
-
-                                    <label class="option-card" id="q{{ loop.index0 }}_opt_C" for="q{{ loop.index0 }}_c">
-                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_c"
-                                            value="C" class="option-radio">
-                                        <span class="option-badge">C</span>
-                                        <span class="option-text">{{ q.option_c }}</span>
-                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
-                                    </label>
-
-                                    <label class="option-card" id="q{{ loop.index0 }}_opt_D" for="q{{ loop.index0 }}_d">
-                                        <input type="radio" name="q{{ loop.index0 }}" id="q{{ loop.index0 }}_d"
-                                            value="D" class="option-radio">
-                                        <span class="option-badge">D</span>
-                                        <span class="option-text">{{ q.option_d }}</span>
-                                        <div class="option-check"><i class="fa-solid fa-check"></i></div>
-                                    </label>
-                                </div>
-
-                                <!-- Hidden Explanation Data Store -->
-                                <div class="explanation-text-hidden d-none">{{ q.explanation }}</div>
-                            </div>
-                            {% endfor %}
+            <div class="glass-card mt-3">
+                <!-- Question Number & Difficulty -->
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <span id="question-number" class="question-number">QUESTION 1</span>
+                        <div id="difficulty-wrapper">
+                            <span id="difficulty-badge">MEDIUM</span>
                         </div>
-
-                        <!-- Navigation Buttons -->
-                        <button class="btn btn-primary w-100 mt-4 py-3 btn-submit-response" id="btn-action"
-                            onclick="handleAction()">
-                            <span id="btn-text">CHECK ANSWER</span>
-                        </button>
-
                     </div>
                 </div>
-            </div>
-        </div>
-        </div>
 
-        <!-- Background Decoration -->
-        <div class="background-decoration">
-            <div class="circle circle-1"></div>
-            <div class="circle circle-2"></div>
-        </div>
+                <!-- Text -->
+                <h2 id="question-text" class="question-text">
+                    Loading question...
+                </h2>
 
-        <!-- Bootstrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
-        <!-- Custom JS -->
-        <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
-
-        <!-- Profile Offcanvas -->
-        <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
-            aria-labelledby="offcanvasProfileLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body d-flex flex-column">
-                <!-- User Info -->
-                <div class="text-center mb-2">
-                    <div class="avatar-large mx-auto mb-2">
-                        <span id="offcanvasUserInitial">U</span>
-                    </div>
-                    <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
-                    <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+                <!-- Options -->
+                <div id="options-container">
+                    <!-- JS Injected Tiles -->
                 </div>
 
-                <!-- Menu Links -->
-                <div class="d-grid gap-2 mb-auto">
-                    <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
-                        <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
-                    </a>
-                    <a href="#" class="btn btn-light text-start p-2 profile-link">
-                        <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
-                    </a>
-                    <a href="#" class="btn btn-light text-start p-2 profile-link">
-                        <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
-                    </a>
-                    <a href="#" class="btn btn-light text-start p-2 profile-link">
-                        <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
-                    </a>
-                </div>
-
-                <!-- Logout -->
-                <div class="mt-2 pt-2 border-top text-center">
-                    <button onclick="handleLogout()" class="btn btn-logout w-100 mb-2">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                <!-- Buttons -->
+                <div class="nav-buttons">
+                    <button id="btn-prev" class="btn-glass" disabled>
+                        <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <div class="brand-name fs-2">PrepWise</div>
+                    <button id="btn-action" class="btn-glass btn-action">
+                        SKIP & NEXT
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Finish Confirmation Modal -->
+    <div class="modal fade" id="finishQuizModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-modal p-4 text-center">
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-flag-checkered fa-3x text-primary mb-3"></i>
+                        <h3 class="fw-bold mb-2">Ready to Submit?</h3>
+                        <p class="text-muted">You won't be able to change your answers once you finish the quiz.</p>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" id="btn-confirm-finish" class="btn btn-primary rounded-pill px-4"
+                            style="background: var(--soft-pink); border: none; color: #7f1d1d; font-weight: 700;">Yes,
+                            Finish</button>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Logic -->
-        <script>
-            // Quiz Data
-            const questionsContainer = document.getElementById('quiz-questions-container');
-            const totalQuestions = parseInt(questionsContainer.dataset.total || 0);
-            let currentIndex = 0;
-            let score = 0;
-            let isChecked = false; // State: Has user checked the current answer?
+    </div>
 
-            // DOM Elements
-            const btnAction = document.getElementById('btn-action');
-            const btnText = document.getElementById('btn-text');
+    <!-- Explanation Toast -->
+    <div id="explanation-toast" class="explanation-toast">
+        <div class="d-flex justify-content-between mb-2">
+            <div id="toast-header" class="toast-header"></div>
+            <button type="button" class="btn-close btn-sm"
+                onclick="document.getElementById('explanation-toast').classList.remove('show')"></button>
+        </div>
+        <div id="toast-body" class="toast-body"></div>
+    </div>
 
-            function updateUI() {
-                // Hide all slides
-                document.querySelectorAll('.question-slide').forEach(el => el.classList.add('d-none'));
-                // Show current
-                document.querySelector(`.question-slide[data-index="${currentIndex}"]`).classList.remove('d-none');
+    <!-- Segmented Progress Bar (Footer) -->
+    <div id="progress-bar-container" class="segmented-progress-bar"></div>
 
-                // Reset Button State for new question
-                isChecked = false;
-                btnText.innerText = "CHECK ANSWER";
-                btnAction.classList.remove('btn-success', 'btn-primary');
-                btnAction.classList.add('btn-primary');
-                btnAction.disabled = false;
-            }
+    <!-- Data Injection -->
+    <script id="quiz-data" type="application/json">
+        {{ questions | tojson }}
+    </script>
+    <script id="user-id" type="application/json">
+        {{ session.get('user_id') | tojson }}
+    </script>
 
-            function handleAction() {
-                if (!isChecked) {
-                    // User Checks Answer
-                    checkAnswer();
-                } else {
-                    // User moves to Next
-                    nextQuestion();
-                }
-            }
+    <!-- Bootstrap & Custom JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
-            function checkAnswer() {
-                console.log(`Checking question index: ${currentIndex}`);
-                const currentSlide = document.querySelector(`.question-slide[data-index="${currentIndex}"]`);
-                if (!currentSlide) {
-                    console.error("Critical: Current slide not found!");
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const qData = JSON.parse(document.getElementById('quiz-data').textContent);
+                const uId = JSON.parse(document.getElementById('user-id').textContent);
+                const tId = (qData && qData.length > 0) ? qData[0].topic_id : null;
+
+                if (!qData || qData.length === 0) {
+                    document.getElementById('question-text').innerText = "No questions loaded.";
                     return;
                 }
 
-                const selectedRadio = currentSlide.querySelector('input:checked');
-                console.log("Selected radio:", selectedRadio);
-
-                if (!selectedRadio) {
-                    alert("Please select an option first!");
-                    return;
-                }
-
-                const selectedValue = selectedRadio.value.trim().toUpperCase(); // "A", "B", "C", "D"
-                let correctValue = (currentSlide.dataset.correct || '').trim(); // "A" or "[0, 1, 2]"
-
-                console.log(`Debug: Selected '${selectedValue}', Correct Raw '${correctValue}'`);
-
-                // Determine if match
-                let isMatch = false;
-
-                // Scenario 1: correctValue is a single letter (e.g. "B")
-                if (correctValue.length === 1) {
-                    if (selectedValue === correctValue.toUpperCase()) {
-                        isMatch = true;
-                    }
-                }
-                // Scenario 2: correctValue is the full text (e.g. "[0, 1, 2]")
-                else {
-                    // We need to compare specific option text with the correctValue
-                    // Get the label for the selected radio (using the ID we constructed or closest)
-                    // The radio is inside the label .option-card
-                    const selectedLabelCard = selectedRadio.closest('.option-card');
-                    const selectedOptionText = selectedLabelCard.querySelector('.option-text').innerText.trim();
-
-                    console.log(`Debug: Text Comparison -> Selected: '${selectedOptionText}' vs Correct: '${correctValue}'`);
-
-                    if (selectedOptionText === correctValue) {
-                        isMatch = true;
-                    }
-                }
-
-                // Disable all radios
-                currentSlide.querySelectorAll('input').forEach(inp => inp.disabled = true);
-
-                // Highlight Logic
-                const selectedLabelId = `#q${currentIndex}_opt_${selectedValue}`;
-                const selectedLabel = currentSlide.querySelector(selectedLabelId);
-
-                // If it's a match, just highlight selected as green
-                if (isMatch) {
-                    score++;
-                    if (selectedLabel) selectedLabel.classList.add('option-correct');
-                } else {
-                    // Wrong answer
-                    if (selectedLabel) selectedLabel.classList.add('option-incorrect');
-
-                    // Try to find and highlight the correct one
-                    // If correctValue is a letter, it's easy
-                    if (correctValue.length === 1) {
-                        const correctLabelId = `#q${currentIndex}_opt_${correctValue.toUpperCase()}`;
-                        const correctLabel = currentSlide.querySelector(correctLabelId);
-                        if (correctLabel) correctLabel.classList.add('option-correct');
-                    } else {
-                        // If correctValue is text, we have to loop through options to find the matching text
-                        const allOptions = currentSlide.querySelectorAll('.option-card');
-                        allOptions.forEach(card => {
-                            const txt = card.querySelector('.option-text').innerText.trim();
-                            if (txt === correctValue) {
-                                card.classList.add('option-correct');
-                            }
-                        });
-                    }
-                }
-
-                // Show Explanation (Pop-Out Animation)
-                const explanationText = currentSlide.querySelector('.explanation-text-hidden').innerText;
-
-                // Identify the Correct Option Element to append to
-                let correctOptionCard = null;
-
-                // Find local ID based on correctValue
-                if (correctValue.length === 1) {
-                    const correctLabelId = `#q${currentIndex}_opt_${correctValue.toUpperCase()}`;
-                    correctOptionCard = currentSlide.querySelector(correctLabelId);
-                } else {
-                    // Find by text match if needed, though usually correctValue is single letter "A"
-                    const allOptions = currentSlide.querySelectorAll('.option-card');
-                    allOptions.forEach(card => {
-                        const txt = card.querySelector('.option-text').innerText.trim();
-                        if (txt === correctValue) {
-                            correctOptionCard = card;
-                        }
-                    });
-                }
-
-                if (correctOptionCard) {
-                    // Create the Popout Div
-                    const popout = document.createElement('div');
-
-                    // Check screen width for mobile fallback logic class
-                    const isMobile = window.innerWidth <= 900;
-
-                    if (isMobile) {
-                        popout.className = 'explanation-popout-mobile';
-                    } else {
-                        popout.className = 'explanation-popout';
-                    }
-
-                    popout.innerHTML = `
-                        <div>
-                            <span class="explanation-label"><i class="fa-solid fa-lightbulb"></i> Explanation</span>
-                            <div class="explanation-content">${explanationText}</div>
-                        </div>
-                    `;
-
-                    // Remove any existing popouts just in case
-                    correctOptionCard.querySelectorAll('.explanation-popout, .explanation-popout-mobile').forEach(el => el.remove());
-
-                    // Append
-                    correctOptionCard.appendChild(popout);
-
-                    // Trigger Animation (small delay)
-                    if (!isMobile) {
-                        setTimeout(() => {
-                            popout.classList.add('show-explanation');
-                        }, 50);
-                    }
-                }
-
-                // Update State
-                isChecked = true;
-
-                // Check if last question
-                console.log(`Total: ${totalQuestions}, Current: ${currentIndex}`);
-                if (currentIndex === totalQuestions - 1) {
-                    btnText.innerText = "FINISH QUIZ";
-                    btnAction.classList.remove('btn-primary');
-                    btnAction.classList.add('btn-success');
-                    btnAction.onclick = finishQuiz;
-                } else {
-                    btnText.innerText = "NEXT QUESTION";
-                }
+                window.quizManager = new QuizManager(qData, uId, tId);
+            } catch (e) {
+                console.error("Init Error:", e);
             }
-
-            function nextQuestion() {
-                if (currentIndex < totalQuestions - 1) {
-                    currentIndex++;
-                    updateUI();
-                } else {
-                    finishQuiz();
-                }
-            }
-
-            async function finishQuiz() {
-                // 1. Get User ID
-                const userJson = localStorage.getItem('user');
-                let userId = null;
-                if (userJson) {
-                    try {
-                        const userObj = JSON.parse(userJson);
-                        userId = userObj.id; // Corrected from userObj.id to userObj.id (assuming structure)
-                        // Make sure auth.js stores {id: "uuid"}
-                    } catch (e) { console.error("Error parsing user", e); }
-                }
-
-                // 2. Get Topic ID (from first question)
-                const firstSlide = document.querySelector('.question-slide[data-index="0"]');
-                const topicId = firstSlide ? firstSlide.dataset.topic : null;
-
-                // 3. Send Data
-                try {
-                    btnAction.disabled = true;
-                    btnText.innerText = "SAVING...";
-
-                    if (userId) { // Only save if we have a user
-                        await fetch('/api/save-quiz-result', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                user_id: userId,
-                                score: score,
-                                total: totalQuestions,
-                                topic_id: topicId
-                            })
-                        });
-                    }
-
-                    // 4. Redirect
-                    window.location.href = `/quiz/result?score=${score}&total=${totalQuestions}`;
-                } catch (error) {
-                    console.error("Save error:", error);
-                    // Redirect anyway so user sees result
-                    window.location.href = `/quiz/result?score=${score}&total=${totalQuestions}`;
-                }
-            }
-
-            // Initialize
-            updateUI();
-        </script>
+        });
+    </script>
 </body>
 
 </html>

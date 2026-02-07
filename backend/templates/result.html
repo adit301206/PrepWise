@@ -5,32 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Result | PrepWise</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Raleway:wght@700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}">
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg fixed-top py-3">
-        <div class="container px-3 px-md-4">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" width="40" height="40"
-                    class="rounded-circle">
-                <span class="fw-bold" style="color: #4c1d95;">PrepWise</span>
+    <!-- NAVBAR (Synced with Dashboard) -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
             </a>
+
+            <div class="d-none d-md-block ms-4">
+                <span class="student-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Student
+                </span>
+            </div>
+
+            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile">
+                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                    <span id="navbarUserInitial" class="fw-bold">U</span>
+                </div>
+            </div>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="ms-auto d-flex align-items-center gap-3 me-3">
+                    <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
+                        <i class="fa-solid fa-chart-pie me-2"></i>Analytics
+                    </a>
+                    <button class="btn btn-settings">
+                        <i class="fa-solid fa-gear me-2"></i>Settings
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
+    <!-- RESULT MAIN -->
     <div class="result-container">
         <div class="glass-card">
 
-            <div class="trophy-container mb-4">
+            <div class="trophy-container mb-3">
                 <i class="fa-solid fa-trophy trophy-icon"></i>
             </div>
 
-            <div class="progress-circle-container mb-4">
+            <div class="progress-circle-container mb-3">
                 <svg class="progress-ring" width="160" height="160">
                     <circle class="progress-ring__track" stroke="#BFDBFE" stroke-width="12" fill="transparent" r="70"
                         cx="80" cy="80" />
@@ -38,8 +77,8 @@
                         r="70" cx="80" cy="80" />
                     <defs>
                         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#6366F1" />
-                            <stop offset="100%" stop-color="#EC4899" />
+                            <stop offset="0%" stop-color="#4F46E5" />
+                            <stop offset="100%" stop-color="#DB2777" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -48,38 +87,55 @@
                 </div>
             </div>
 
+            <!-- Answer Map (Visual Strip) -->
+            <div class="answer-map" id="answerMap">
+                <!-- JS will inject dots based on question count -->
+                <!-- Ideally passed via Jinja, but using mock loop if data absent -->
+                {% if questions %}
+                {% for q in questions %}
+                <!-- This is a placeholder. Logic assumes 'q.correct' exists or we mock it. -->
+                <!-- If exact per-question result isn't stored in this request context, we can just show total dots -->
+                {% endfor %}
+                {% endif %}
+            </div>
+
             <h1 class="result-title">{{ feedback_message }}</h1>
             <p class="result-subtitle mb-4">You answered <strong>{{ score }}</strong> out of <strong>{{ total
                     }}</strong> questions correctly.</p>
 
-            <div class="stats-grid mb-4">
+            <!-- Premium Stat Pills -->
+            <div class="stats-grid">
                 <div class="stat-pill total">
+                    <i class="fa-solid fa-list-ol mb-1 text-primary"></i>
                     <span class="stat-label">Total</span>
                     <span class="stat-value">{{ total }}</span>
                 </div>
                 <div class="stat-pill correct">
+                    <i class="fa-solid fa-check-circle mb-1 text-success"></i>
                     <span class="stat-label">Correct</span>
                     <span class="stat-value">{{ score }}</span>
                 </div>
                 <div class="stat-pill wrong">
+                    <i class="fa-solid fa-times-circle mb-1 text-danger"></i>
                     <span class="stat-label">Wrong</span>
                     <span class="stat-value">{{ total - score }}</span>
                 </div>
             </div>
 
             <div class="d-flex flex-column gap-3">
-                <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary-custom w-100">
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary-custom">
                     <i class="fa-solid fa-house me-2"></i> Back to Dashboard
                 </a>
-
-                <button class="btn btn-outline-custom w-100"
-                    onclick="alert('Detailed review feature is coming effectively in the next update!')">
-                    <i class="fa-solid fa-list-check me-2"></i> Review Answers
+                <button class="btn btn-outline-custom" onclick="alert('Detailed analysis features coming soon!')">
+                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i> Call Analytics AI
                 </button>
             </div>
 
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -91,12 +147,12 @@
             circle.style.strokeDasharray = `${circumference} ${circumference}`;
             circle.style.strokeDashoffset = circumference;
 
-            // --- SAFETY FIX: Defaults to 0 if python variable is missing ---
             const targetPercent = Number("{{ score_percent | default(0) }}");
-
+            const score = Number("{{ score | default(0) }}");
+            const total = Number("{{ total | default(0) }}");
             const offset = circumference - (targetPercent / 100) * circumference;
 
-            // Animate after small delay
+            // Animate after delay
             setTimeout(() => {
                 circle.style.strokeDashoffset = offset;
             }, 300);
@@ -104,7 +160,6 @@
             // Animate Number
             const numberEl = document.getElementById('scorePercent');
             let currentNum = 0;
-            // Prevent division by zero if percent is 0
             const stepTime = targetPercent > 0 ? (1500 / targetPercent) : 0;
 
             if (targetPercent > 0) {
@@ -115,6 +170,37 @@
                 }, stepTime);
             } else {
                 numberEl.innerText = "0%";
+            }
+
+            // Confetti Explosion
+            if (targetPercent >= 60) {
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#6366f1', '#ec4899', '#fde68a']
+                    });
+                }, 800);
+            }
+
+            // Answer Map Generation (Mock Visuals based on Score)
+            // Since we might not have individual question data in this simple result view,
+            // we will generate 'Correct' dots first, then 'Wrong' dots.
+            const mapContainer = document.getElementById('answerMap');
+            if (mapContainer) {
+                for (let i = 0; i < score; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'answer-dot correct';
+                    dot.title = 'Correct';
+                    mapContainer.appendChild(dot);
+                }
+                for (let i = 0; i < (total - score); i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'answer-dot wrong';
+                    dot.title = 'Incorrect';
+                    mapContainer.appendChild(dot);
+                }
             }
         });
     </script>

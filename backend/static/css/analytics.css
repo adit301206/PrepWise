@@ -529,6 +529,10 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     color: #1e293b;
     /* User Requested Font Color */
+    justify-content: flex-start !important;
+    /* Override stat-card space-between */
+    gap: 1rem !important;
+    /* Add reasonable gap */
 }
 
 .perf-card:hover {
@@ -573,18 +577,21 @@ body {
 
 /* Scrollable Subject List */
 .subject-list-container {
-    max-height: 250px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding-right: 8px;
     /* Avoid content hitting scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: #fca5a5 #f1f5f9;
+    scrollbar-width: thin;
+    /* scrollbar-color removed to allow webkit styling */
 }
 
 .section-header-large {
     font-size: 1.8rem;
     font-weight: 800;
     margin-bottom: 0;
+    /* Reduced from 0 to allow subtle spacing but keep tight */
     background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -599,13 +606,13 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
     border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #fca5a5;
-    /* User Pink */
+    background: rgba(252, 165, 165, 0.5);
+    /* User Pink with transparency */
     border-radius: 4px;
 }
 
