@@ -135,6 +135,16 @@ body {
     font-size: 1.2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
+    overflow: hidden;
+    /* Ensure image stays inside */
+}
+
+.avatar-circle-sm {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
 }
 
 
@@ -318,31 +328,49 @@ body {
     /* Prepare for border */
 }
 
-/* Staggered Animation Delays */
+/* Overall Accuracy (Green) */
 .stat-card:nth-child(1) {
     animation-delay: 0.1s;
-    border-color: #3b82f6;
+    background: linear-gradient(to bottom right, #D0F0C0, #d4fae2);
+    /* Remove this line if you find it */
+    border-top: 2px solid some-color;
+
+    /* Or explicitly set it to none */
+    border-top: none !important;
 }
 
-/* Blue */
+/* Total Quizzes (Blue) */
 .stat-card:nth-child(2) {
     animation-delay: 0.2s;
-    border-color: #9333ea;
+    background: linear-gradient(to bottom right, #c7d2fe, #f3e8ff);
+    /* Remove this line if you find it */
+    border-top: 2px solid some-color;
+
+    /* Or explicitly set it to none */
+    border-top: none !important;
 }
 
-/* Purple */
+/* Current Streak (Yellow) */
 .stat-card:nth-child(3) {
     animation-delay: 0.3s;
-    border-color: #ec4899;
+    background: linear-gradient(to bottom right, #FDE68A, #FEF3C7);
+    /* Remove this line if you find it */
+    border-top: 2px solid some-color;
+
+    /* Or explicitly set it to none */
+    border-top: none !important;
 }
 
-/* Pink */
+/* Recent Trend (Pink) */
 .stat-card:nth-child(4) {
     animation-delay: 0.4s;
-    border-color: #f59e0b;
-}
+    background: linear-gradient(to bottom right, #FCA5A5, #FECACA);
+    /* Remove this line if you find it */
+    border-top: 2px solid some-color;
 
-/* Yellow */
+    /* Or explicitly set it to none */
+    border-top: none !important;
+}
 
 .stat-card:hover {
     transform: translateY(-8px);
@@ -370,7 +398,7 @@ body {
 .stat-label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #94a3b8;
+    /* color: #94a3b8; */
     letter-spacing: 1.2px;
     text-transform: uppercase;
     margin-bottom: 0.5rem;
@@ -389,7 +417,6 @@ body {
 .stat-status {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #10b981;
     background: rgba(16, 185, 129, 0.1);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
@@ -414,9 +441,9 @@ body {
     transform: scale(1.1) rotate(5deg);
 }
 
-.icon-blue {
-    background-color: #bfdbfe;
-    color: #2563eb;
+.icon-green {
+    background-color: #c2eef4;
+    color: #2a5d64;
 }
 
 .icon-purple {
@@ -432,7 +459,394 @@ body {
 .icon-yellow {
     background-color: #fde68a;
     color: #b45309;
-}/* --- Offcanvas & Profile Styling --- */
+}
+
+
+
+/* --- New Content Added Below --- */
+
+.animate-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Content Cards */
+.content-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    height: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--primary-text);
+    margin-bottom: 0.25rem;
+}
+
+.section-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Activity Items */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    padding: 1.2rem;
+    border-radius: 18px;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.activity-item:hover {
+    background: white;
+    transform: translateX(8px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: #e2e8f0;
+}
+
+.user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+}
+
+.avatar-blue {
+    background: #6366f1;
+}
+
+.avatar-purple {
+    background: #a855f7;
+}
+
+.user-email {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.user-meta {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+/* Role Badges */
+.role-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 0;
+}
+
+.badge-student {
+    color: #2563eb;
+}
+
+.badge-teacher {
+    color: #9333ea;
+}
+
+.badge-admin {
+    color: #e11d48;
+}
+
+/* Quick Actions Buttons */
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 1.1rem;
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    font-weight: 700;
+    color: #475569;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.action-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    color: #1e293b;
+}
+
+.action-btn i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.text-purple {
+    color: #8b5cf6;
+}
+
+.text-green {
+    color: #10b981;
+}
+
+/* --- User Management Table Styles --- */
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    /* Adds space between rows */
+}
+
+.custom-table thead th {
+    border: none;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+}
+
+.custom-table tbody tr {
+    background: #f8fafc;
+    transition: transform 0.2s ease;
+}
+
+.custom-table tbody td {
+    padding: 1.2rem 20px;
+    vertical-align: middle;
+    border: none;
+}
+
+/* Rounded corners for row background */
+.custom-table tbody tr td:first-child {
+    border-radius: 16px 0 0 16px;
+}
+
+.custom-table tbody tr td:last-child {
+    border-radius: 0 16px 16px 0;
+}
+
+.user-email-cell {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.date-cell {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Role Selector Pill */
+.role-select {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.role-select.student {
+    color: #3b82f6;
+}
+
+.role-select.teacher {
+    color: #9333ea;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.btn-delete:hover {
+    color: #ef4444;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* CSS to handle the toggling */
+#user-management-section,
+#curriculum-section,
+#question-bank-section {
+    display: none;
+    /* Hidden by default */
+}
+
+/* Styles for Curriculum Section items */
+.curriculum-item {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subject-tag {
+    font-size: 0.65rem;
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.add-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    /* Vertically align items */
+    flex-wrap: nowrap;
+    /* Prevent wrapping */
+}
+
+.add-input {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    min-width: 0;
+    /* Allow shrinking if needed */
+}
+
+.btn-add-curriculum {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    flex-shrink: 0;
+    /* Prevent button from shrinking */
+    transition: background-color 0.2s;
+}
+
+.btn-add-curriculum:hover {
+    background-color: #4f46e5;
+}
+
+/* Question Bank Styles */
+.question-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.q-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    margin-right: 5px;
+}
+
+.badge-easy {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-python {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.q-text {
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 10px;
+    display: block;
+}
+
+.btn-add-q {
+    background: #6366f1;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+}
+
+
+
+.content-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    cursor: pointer;
+    position: relative;
+    /* Essential for translateY to work smoothly */
+    z-index: 1;
+    animation-delay: 0.1s;
+    border-color: #010b1b;
+    border-width: 2pt;
+    background-color: #bfdbfe !important;
+    /* Replace with your desired color, e.g., light grey */
+    background: #bfdbfe !important;
+}
+
+/* Added :active so it works when you touch it on mobile */
+.content-card:hover,
+.content-card:active {
+    transform: translateY(-12px) !important;
+    /* Lifts the card up */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    /* Deeper shadow */
+    z-index: 10;
+    /* Brings it to the front while hovering */
+}
+
+/* Optional: Subtle transition for the items inside the card when hovered */
+.content-card:hover .section-title {
+    transition: color 0.3s ease;
+
+}
+
+/* This targets the specific System Users block and forces the color change */
+#user-management-section.content-card {
+    background-color: #bfdbfe !important;
+    /* Replace with your desired color, e.g., light grey */
+    background: #bfdbfe !important;
+    /* Also use 'background' to be safe */
+}
+
+/* --- Offcanvas & Profile Styling (Ported from Student Dashboard) --- */
 
 /* Avatar in Navbar (Updated) */
 .avatar {
@@ -507,6 +921,8 @@ body {
     transition: all 0.3s ease;
     padding: 0.8rem 1rem !important;
     text-decoration: none;
+    text-align: left;
+    /* Ensure text alignment */
 }
 
 .profile-link:hover {
@@ -533,18 +949,10 @@ body {
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-/* Dynamic User Avatar Badge */
-.user-avatar-badge {
-    width: 40px;
-    height: 40px;
-    background-color: #6366f1;
-    color: white;
-    font-weight: 800;
-    font-size: 1.2rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.avatar-circle {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
 }

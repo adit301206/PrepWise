@@ -1,5 +1,6 @@
 /* --- GLOBAL HORIZONTAL SCROLL FIX --- */
-html, body {
+html,
+body {
     overflow-x: hidden !important;
     width: 100%;
     max-width: 100vw;
@@ -8,7 +9,9 @@ html, body {
     box-sizing: border-box;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: inherit;
 }
 
@@ -221,157 +224,165 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
+}
 
-    /* Demo Environment Styles */
-    .demo-window {
-        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
-        transition: all 0.4s ease;
-        /* Fancy Box Effects */
-        box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.5),
-            /* Deep Shadow */
-            0 0 0 1px rgba(99, 102, 241, 0.1),
-            /* Thin Ring */
-            0 0 40px -10px rgba(99, 102, 241, 0.3);
-        /* Indigo Glow */
-    }
+/* Added to fix full screen avatar issue on landing page */
+.avatar-circle-sm {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
 
-    /* Spotlight Effect */
-    .demo-window::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
-        opacity: 0;
-        transform: scale(0.5);
-        transition: opacity 0.5s, transform 0.5s;
-        pointer-events: none;
-    }
+/* Demo Environment Styles */
+.demo-window {
+    background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    /* Fancy Box Effects */
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        /* Deep Shadow */
+        0 0 0 1px rgba(99, 102, 241, 0.1),
+        /* Thin Ring */
+        0 0 40px -10px rgba(99, 102, 241, 0.3);
+    /* Indigo Glow */
+}
 
-    .demo-window:hover::after {
-        opacity: 1;
+/* Spotlight Effect */
+.demo-window::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+}
+
+.demo-window:hover::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.demo-window:hover {
+    transform: translateY(-10px);
+    box-shadow:
+        0 35px 60px -15px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(168, 85, 247, 0.3),
+        /* Purple Ring */
+        0 0 60px -5px rgba(168, 85, 247, 0.4);
+    /* Purple Glow */
+    border-color: rgba(168, 85, 247, 0.5);
+}
+
+.window-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dot.red {
+    background-color: #EF4444;
+}
+
+.dot.yellow {
+    background-color: #F59E0B;
+}
+
+.dot.green {
+    background-color: #10B981;
+}
+
+.demo-icon {
+    font-size: 4rem;
+    color: #6366F1;
+    /* Indigo */
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.demo-star {
+    font-size: 2rem;
+    color: #A855F7;
+    /* Purple */
+    position: absolute;
+    margin-top: -10px;
+    margin-left: -10px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.demo-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.demo-description {
+    color: #94A3B8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.btn-demo {
+    background: white;
+    color: #1E1B4B;
+    font-weight: 700;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-demo:hover {
+    background: #E0E7FF;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
         transform: scale(1);
     }
 
-    .demo-window:hover {
-        transform: translateY(-10px);
-        box-shadow:
-            0 35px 60px -15px rgba(0, 0, 0, 0.6),
-            0 0 0 1px rgba(168, 85, 247, 0.3),
-            /* Purple Ring */
-            0 0 60px -5px rgba(168, 85, 247, 0.4);
-        /* Purple Glow */
-        border-color: rgba(168, 85, 247, 0.5);
-    }
-
-    .window-header {
-        padding: 1rem 1.5rem;
-        display: flex;
-        gap: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-    }
-
-    .dot.red {
-        background-color: #EF4444;
-    }
-
-    .dot.yellow {
-        background-color: #F59E0B;
-    }
-
-    .dot.green {
-        background-color: #10B981;
-    }
-
-    .demo-icon {
-        font-size: 4rem;
-        color: #6366F1;
-        /* Indigo */
-        filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
-        animation: pulse-glow 2s infinite ease-in-out;
-    }
-
-    .demo-star {
-        font-size: 2rem;
-        color: #A855F7;
-        /* Purple */
-        position: absolute;
-        margin-top: -10px;
-        margin-left: -10px;
-        animation: float 3s ease-in-out infinite;
-    }
-
-    .demo-title {
-        font-family: 'Raleway', sans-serif;
-        font-weight: 800;
-        font-size: 2rem;
-        color: white;
-        letter-spacing: -0.5px;
-    }
-
-    .demo-description {
-        color: #94A3B8;
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-
-    .btn-demo {
-        background: white;
-        color: #1E1B4B;
-        font-weight: 700;
-        padding: 0.8rem 2rem;
-        border-radius: 50px;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn-demo:hover {
-        background: #E0E7FF;
+    50% {
+        filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.8));
         transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     }
-
-    @keyframes pulse-glow {
-
-        0%,
-        100% {
-            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
-            transform: scale(1);
-        }
-
-        50% {
-            filter: drop-shadow(0 0 25px rgba(99, 102, 241, 0.8));
-            transform: scale(1.05);
-        }
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-10px);
-        }
-    }
-
-    /* Subtle border */
 }
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Subtle border */
 
 .avatar:hover {
     background: rgba(255, 255, 255, 0.95);
@@ -2005,23 +2016,30 @@ body {
 .position-relative .glass-input {
     margin-bottom: 0;
 }
+
 /* --- RESPONSIVENESS OVERHAUL --- */
 
 /* 1. Global Overflow Protection */
-body, html {
+body,
+html {
     overflow-x: hidden;
     width: 100%;
 }
 
 /* 2. Mobile Media Query (< 768px) */
 @media (max-width: 768px) {
-    
+
     /* Typography Scaling */
-    h1, .login-title, .dashboard-title {
-        font-size: 2rem !important; /* Down from 3rem+ */
+    h1,
+    .login-title,
+    .dashboard-title {
+        font-size: 2rem !important;
+        /* Down from 3rem+ */
     }
 
-    h2, .features-title, .cta-title {
+    h2,
+    .features-title,
+    .cta-title {
         font-size: 1.8rem !important;
     }
 
@@ -2030,7 +2048,8 @@ body, html {
     }
 
     .tagline {
-        font-size: 3rem !important; /* Down from 6rem */
+        font-size: 3rem !important;
+        /* Down from 6rem */
         line-height: 1.2;
     }
 
@@ -2046,8 +2065,12 @@ body, html {
     }
 
     /* Card Adjustments */
-    .glass-card, .quiz-card, .placeholder-card, .config-card {
-        width: 100% !important; /* Full width on mobile */
+    .glass-card,
+    .quiz-card,
+    .placeholder-card,
+    .config-card {
+        width: 100% !important;
+        /* Full width on mobile */
         padding: 1.5rem !important;
         margin-bottom: 2rem;
     }
@@ -2063,18 +2086,22 @@ body, html {
     }
 
     .custom-offcanvas {
-        width: 75vw !important; /* Easier to tap */
+        width: 75vw !important;
+        /* Easier to tap */
     }
 
     /* Form Inputs */
-    .glass-input, .form-control {
-        font-size: 16px; /* Prevents iOS zoom */
+    .glass-input,
+    .form-control {
+        font-size: 16px;
+        /* Prevents iOS zoom */
         padding: 0.8rem;
     }
 
     /* Hide decorative/complex elements on mobile if needed */
     .background-decoration {
-        display: none; /* Often cleaner on mobile */
+        display: none;
+        /* Often cleaner on mobile */
     }
 
     /* Quiz Specifics */
@@ -2086,4 +2113,3 @@ body, html {
         padding: 1rem;
     }
 }
-

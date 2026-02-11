@@ -1,13 +1,30 @@
 import os
 import psycopg2
-from psycopg2.extras import RealDictCursor
-from flask import Flask, render_template, g, jsonify, request, url_for, session, redirect
-from datetime import date
 from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory, g
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from supabase import create_client, Client
+import random
+import requests
+from psycopg2.extras import RealDictCursor
+from datetime import date
 import uuid
+from models import User, HistoryStack
 
-# 1. Load environment variables from .env
+# Load environment variables
 load_dotenv()
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
+
+# File Upload Config
+UPLOAD_FOLDER = 'static/uploads/avatars'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Ensure upload directory exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 print("------------------------------------------------")
 print("DEBUG: Checking .env file...")
@@ -20,8 +37,7 @@ else:
     print("DEBUG: Make sure .env is in the same folder as app.py")
 print("------------------------------------------------")
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
+# Fix for Render/Heroku (postgres:// -> postgresql://)
 # Fix for Render/Heroku (postgres:// -> postgresql://)
 DB_URL = os.environ.get("DATABASE_URL")
 if DB_URL and DB_URL.startswith("postgres://"):
@@ -129,7 +145,8 @@ def student_dashboard():
                              history=history_list, 
                              user_stats=analytics_data,
                              daily_count=daily_count,
-                             daily_percentage=daily_percentage)
+                             daily_percentage=daily_percentage,
+                             user=current_user)
 
     except Exception as e:
         print(f"DASHBOARD ERROR: {e}")
@@ -142,9 +159,231 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+@app.route('/dashboard')
+def dashboard():
+    """Redirects to the appropriate dashboard based on user role."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    role = session.get('role', 'student')
+    if role == 'teacher':
+        return redirect(url_for('teacher_console'))
+    else:
+        return redirect(url_for('student_dashboard'))
+
 @app.route('/teacher-console')
 def teacher_console():
-    return render_template('teacher_console.html')
+    """Renders the teacher console with dynamic data."""
+    # 1. Auth Check
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    role = session.get('role', 'student')
+    if role != 'teacher' and role != 'admin':
+        return redirect(url_for('student_dashboard'))
+
+    conn = get_db()
+    if not conn:
+        return "Database Error", 500
+        
+    try:
+        cur = conn.cursor()
+
+        # 2. Fetch Stats (Fix: RealDictCursor returns dicts, use keys or alias)
+        cur.execute("SELECT COUNT(*) as c FROM users")
+        user_count = cur.fetchone()['c']
+        
+        cur.execute("SELECT COUNT(*) as c FROM subjects")
+        subject_count = cur.fetchone()['c']
+        
+        cur.execute("SELECT COUNT(*) as c FROM topics")
+        topic_count = cur.fetchone()['c']
+        
+        cur.execute("SELECT COUNT(*) as c FROM questions")
+        question_count = cur.fetchone()['c']
+        
+        stats = {
+            'users': user_count,
+            'subjects': subject_count,
+            'topics': topic_count,
+            'questions': question_count
+        }
+
+        # 3. Fetch Recent Activity (Last 5 Users)
+        cur.execute("SELECT name, email, role, to_char(created_at, 'MM/DD/YYYY') as created_at FROM users ORDER BY created_at DESC LIMIT 5")
+        recent_activity = cur.fetchall()
+
+        # 4. Fetch All Users
+        cur.execute("SELECT user_id, email, role, to_char(created_at, 'MM/DD/YYYY') as created_at FROM users ORDER BY created_at DESC")
+        all_users = cur.fetchall()
+
+        # 5. Fetch Curriculum
+        cur.execute("SELECT * FROM subjects ORDER BY subject_name")
+        subjects = cur.fetchall()
+        
+        cur.execute("""
+            SELECT t.topic_id, t.topic_name, s.subject_name 
+            FROM topics t 
+            JOIN subjects s ON t.subject_id = s.subject_id 
+            ORDER BY s.subject_name, t.topic_name
+        """)
+        topics = cur.fetchall()
+
+        # 6. Fetch Questions (Limit 20 for performance)
+        cur.execute("""
+            SELECT q.question_id, q.question_text, q.difficulty, t.topic_name 
+            FROM questions q
+            JOIN topics t ON q.topic_id = t.topic_id
+            ORDER BY q.question_id DESC LIMIT 20
+        """)
+        questions = cur.fetchall()
+        
+        cur.close()
+
+        return render_template('teacher_console.html', 
+                             stats=stats, 
+                             recent_users=recent_activity, 
+                             users=all_users, 
+                             subjects=subjects, 
+                             topics=topics, 
+                             questions=questions)
+                             
+    except Exception as e:
+        print(f"Error loading teacher console: {e}")
+        return "Server Error calling DB", 500
+
+# --- ADMIN API ENDPOINTS ---
+
+@app.route('/api/admin/subject/add', methods=['POST'])
+def add_subject_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    name = data.get('subject_name')
+    if not name: return jsonify({"error": "Missing name"}), 400
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO subjects (subject_name) VALUES (%s) RETURNING subject_id", (name,))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Subject added"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/topic/add', methods=['POST'])
+def add_topic_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    subject_id = data.get('subject_id')
+    name = data.get('topic_name')
+    
+    if not subject_id or not name: return jsonify({"error": "Missing data"}), 400
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO topics (subject_id, topic_name) VALUES (%s, %s)", (subject_id, name))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Topic added"})
+    except Exception as e:
+        conn.rollback() # Good practice to rollback
+        if hasattr(e, 'pgcode') and e.pgcode == '23505': # Unique Violation
+            return jsonify({"error": "Topic already exists for this subject"}), 409
+        print(f"Error adding topic: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/user/delete', methods=['POST'])
+def delete_user_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    user_id = data.get('user_id')
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "User deleted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/user/role', methods=['POST'])
+def update_user_role_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    user_id = data.get('user_id')
+    new_role = data.get('new_role')
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET role = %s WHERE user_id = %s", (new_role, user_id))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Role updated"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/question/add', methods=['POST'])
+def add_question_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    # Expected: topic_id, text, options (JSON array), correct_option (index usually), difficulty, explanation
+    
+    topic_id = data.get('topic_id')
+    text = data.get('text')
+    options = data.get('options') # List of strings
+    correct_idx = data.get('correct_index') # Integer 0-3
+    difficulty = data.get('difficulty', 'medium')
+    explanation = data.get('explanation', '')
+    
+    if not topic_id or not text or not options:
+        return jsonify({"error": "Missing required fields"}), 400
+        
+    # Map options list to columns
+    opt_a = options[0] if len(options) > 0 else None
+    opt_b = options[1] if len(options) > 1 else None
+    opt_c = options[2] if len(options) > 2 else None
+    opt_d = options[3] if len(options) > 3 else None
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO questions (topic_id, question_text, option_a, option_b, option_c, option_d, correct_option, difficulty, explanation)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (topic_id, text, opt_a, opt_b, opt_c, opt_d, correct_idx, difficulty, explanation))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Question added"})
+    except Exception as e:
+        print(f"Add Question Failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/question/delete', methods=['POST'])
+def delete_question_api():
+    if session.get('role') not in ['teacher', 'admin']: return jsonify({"error": "Unauthorized"}), 403
+    
+    data = request.json
+    question_id = data.get('question_id')
+    
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM questions WHERE question_id = %s", (question_id,))
+        conn.commit()
+        cur.close()
+        return jsonify({"message": "Question deleted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/analytics')
 def analytics():
@@ -628,11 +867,28 @@ def login_api():
         role = meta.get('role', 'student') 
         access_token = res.session.access_token
         
-        # CREATE SESSION
+        # 1. CLEAR OLD SESSION to prevent data leakage
+        session.clear()
+        
+        # 2. CREATE NEW SESSION
         session['user_id'] = user.id
         session['user_email'] = user.email
         session['role'] = role
         session.permanent = True
+        
+        # 3. SYNC PROFILE DATA FROM DB (name, avatar_url)
+        try:
+            from models import User
+            conn = get_db()
+            if conn:
+                db_user = User(conn, user.id)
+                profile_data = db_user.get_profile_data()
+                if profile_data:
+                    session['user_name'] = profile_data.get('name')
+                    session['avatar_url'] = profile_data.get('avatar_url')
+                    print(f"DEBUG: Login Sync - Name: {session.get('user_name')}, Avatar: {session.get('avatar_url')}")
+        except Exception as db_e:
+            print(f"DEBUG: Login Sync Error: {db_e}")
         
         return jsonify({
             "message": "Login successful!",
@@ -641,7 +897,9 @@ def login_api():
                 "user": {
                     "id": user.id,
                     "email": user.email,
-                    "role": role
+                    "role": role,
+                    "name": session.get('user_name'),
+                    "avatar_url": session.get('avatar_url')
                 }
             }
         })
@@ -652,38 +910,101 @@ def login_api():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/user/profile', methods=['GET'])
-def get_user_profile():
-    """Fetches user profile (name, email) from database using Auth token."""
-    auth_header = request.headers.get('Authorization')
-    if not auth_header:
-        return jsonify({"error": "Missing Authorization header"}), 401
+@app.route('/profile')
+def profile():
+    """Renders the user profile page."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('profile.html')
 
-    token = auth_header.split(" ")[1] # Bearer <token>
+@app.route('/api/user/profile', methods=['GET', 'POST'])
+def user_profile_api():
+    """Handles fetching and updating user profile with file upload support."""
+    from models import User
+
+    # 1. Auth Check
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_id = session['user_id']
+    conn = get_db()
+    
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
 
     try:
-        # 1. Verify Session with Supabase Auth
-        user_response = supabase.auth.get_user(token)
-        user_id = user_response.user.id
-
-        # 2. Query 'users' table for profile data
-        # Using Supabase client to query the table directly
-        data_response = supabase.table('users').select('name, email').eq('user_id', user_id).execute()
+        user = User(conn, user_id)
         
-        if data_response.data and len(data_response.data) > 0:
-            user_data = data_response.data[0]
-            return jsonify({
-                "name": user_data.get('name'),
-                "email": user_data.get('email')
-            })
-        else:
-            # Fallback if user record missing in table (shouldn't happen if sync works)
-            return jsonify({"error": "User profile not found"}), 404
+        if request.method == 'GET':
+            # Use the new explicit method
+            profile_data = user.get_profile_data()
+            if profile_data:
+                return jsonify(profile_data)
+            else:
+                return jsonify({"error": "Profile not found"}), 404
+            
+        elif request.method == 'POST':
+            print("------------------------------------------------")
+            print(f"DEBUG: POST /api/user/profile hit by User {user_id}")
+            print(f"DEBUG: Form Data: {request.form}")
+            print(f"DEBUG: Files Data: {request.files}")
 
-    except AuthApiError:
-         return jsonify({"error": "Invalid or expired token"}), 401
+            avatar_url_path = None
+
+            # File Upload Logic
+            if 'avatar' in request.files:
+                file = request.files['avatar']
+                if file and file.filename != '':
+                    # Validate allowed file extensions (basic check)
+                    filename = secure_filename(file.filename)
+                    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+                    
+                    if ext in app.config['ALLOWED_EXTENSIONS']:
+                        # Create unique filename: user_{id}_{timestamp}.{ext}
+                        import time
+                        unique_filename = f"user_{user_id}_{int(time.time())}.{ext}"
+                        file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                        
+                        # Save file
+                        file.save(file_path)
+                        
+                        # Store URL path in DB (relative to static)
+                        avatar_url_path = f"/static/uploads/avatars/{unique_filename}"
+                        
+                        # Update Session immediately
+                        session['avatar_url'] = avatar_url_path
+                        session.modified = True
+            
+            # Construct the final data dict explicitly
+            # Note: We use .get() to avoid KeyErrors, and handle empty strings if needed
+            update_data = {
+                "name": request.form.get('name'),
+                "phone": request.form.get('phone'),
+                "birthdate": request.form.get('birthdate'), 
+                "bio": request.form.get('bio'),
+                "avatar_url": avatar_url_path 
+            }
+            
+            print(f"DEBUG: Sending to Model: {update_data}")
+
+            # Update DB
+            success = user.update_profile(update_data)
+            
+            # Update Session Name if changed
+            if 'name' in update_data and update_data['name']:
+                session['user_name'] = update_data['name']
+                session.modified = True
+            
+            if success:
+                return jsonify({
+                    "message": "Profile updated successfully!", 
+                    "avatar_url": update_data.get('avatar_url') or session.get('avatar_url')
+                })
+            else:
+                return jsonify({"error": "Failed to update profile"}), 500
+
     except Exception as e:
-        print(f"Profile Fetch Error: {e}")
+        print(f"Profile API Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/resend-otp', methods=['POST'])
@@ -745,7 +1066,7 @@ def forgot_password_api():
         traceback.print_exc()
         print(f"Forgot Password Error: {e}")
         print(f"DEBUG: Checking Redirect URL: {redirect_url}")
-        return jsonify({"error": str(e) + " (Check server logs for details. Hint: Is the Redirect URL whitelisted in Supabase?)"}), 400
+
 
 @app.route('/api/update-password', methods=['POST'])
 def update_password_api():

@@ -35,7 +35,16 @@
 
             <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile">
                 <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
-                    <span id="navbarUserInitial" class="fw-bold">U</span>
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle-sm">
+                    {% elif user and user.avatar_url %}
+                    <img src="{{ user.avatar_url }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle-sm">
+                    {% else %}
+                    <span id="navbarUserInitial" class="fw-bold">{% if user and user.name %}{{ user.name[0] }}{% else
+                        %}U{% endif %}</span>
+                    {% endif %}
                 </div>
             </div>
 
@@ -323,17 +332,31 @@
         <div class="offcanvas-body d-flex flex-column">
             <div class="text-center mb-2">
                 <div class="avatar-large mx-auto mb-2">
-                    <span id="offcanvasUserInitial">U</span>
+                    {% if session.get('avatar_url') %}
+                    <!-- Use session variable with cache busting -->
+                    <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle">
+                    {% elif user and user.avatar_url %}
+                    <img src="{{ user.avatar_url }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle">
+                    {% else %}
+                    <span id="offcanvasUserInitial">{% if user and user.name %}{{ user.name[0] }}{% else %}U{% endif
+                        %}</span>
+                    {% endif %}
                 </div>
-                <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
-                <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+                <!-- Use session name if available for immediate update -->
+                <h4 class="fw-bold mb-0" id="offcanvasUserName">{% if session.get('user_name') %}{{ session['user_name']
+                    }}{% elif user %}{{ user.name }}{% else %}User Name{% endif %}</h4>
+                <p class="text-muted small" id="offcanvasUserEmail">{% if user %}{{ user.email }}{% else
+                    %}user@example.com{% endif %}</p>
             </div>
 
             <div class="d-grid gap-2 mb-auto">
-                <a href="#" class="btn btn-light text-start p-2 profile-link">
-                    <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                <a href="{{ url_for('profile') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-user me-3 text-primary"></i> My Profile
                 </a>
-                <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                <a href="{{ url_for('student_dashboard') }}" id="dashboardLink"
+                    class="btn btn-navy text-start p-2 profile-link active">
                     <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
                 </a>
                 <a href="#" class="btn btn-light text-start p-2 profile-link">

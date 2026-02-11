@@ -41,20 +41,104 @@ class User:
         self.email = None
         self._load_profile()
 
-    def _load_profile(self):
-        """Private method to load basic user info."""
-        if not self.conn: return
+    def get_profile_data(self):
+        """Explicitly fetches profile data for the API using user_id."""
+        if not self.conn: return None
         cur = self.conn.cursor()
         try:
-            cur.execute("SELECT name, email FROM users WHERE user_id = %s", (self.user_id,))
+            # STRICTLY use user_id
+            cur.execute("SELECT name, email, bio, phone, birthdate, avatar_url FROM users WHERE user_id = %s", (self.user_id,))
             res = cur.fetchone()
             if res:
-                self.name = res['name']
-                self.email = res['email']
+                return {
+                    "name": res['name'],
+                    "email": res['email'],
+                    "bio": res['bio'],
+                    "phone": res['phone'],
+                    "birthdate": res['birthdate'], 
+                    "avatar_url": res['avatar_url']
+                }
+            return None
         except Exception as e:
-            print(f"Error loading profile: {e}")
+            print(f"Error fetching profile data: {e}")
+            return None
         finally:
             cur.close()
+
+    def _load_profile(self):
+        """Internal method to load basic info into the object."""
+        data = self.get_profile_data()
+        if data:
+            self.name = data['name']
+            self.email = data['email']
+            self.bio = data['bio']
+            self.phone = data['phone']
+            self.birthdate = data['birthdate']
+            self.avatar_url = data['avatar_url']
+
+    def update_profile(self, data):
+        print(f"DEBUG: update_profile called with: {data}")
+        if not self.conn: return False
+        
+        try:
+            cur = self.conn.cursor()
+            
+            # 1. Check if user exists first
+            cur.execute("SELECT user_id FROM users WHERE user_id = %s", (self.user_id,))
+            if not cur.fetchone():
+                print(f"DEBUG: User {self.user_id} NOT FOUND in DB!")
+                return False
+
+            # 2. Prepare SQL
+            # Using COALESCE to keep existing values if new ones are None. 
+            # Note: We use %s placeholder syntax for psycopg2.
+            sql = """
+                UPDATE users 
+                SET name = COALESCE(%s, name),
+                    phone = COALESCE(%s, phone),
+                    birthdate = COALESCE(%s, birthdate),
+                    bio = COALESCE(%s, bio),
+                    avatar_url = COALESCE(%s, avatar_url)
+                WHERE user_id = %s
+            """
+            
+            # Helper: Extract values or None. 
+            # If a field is NOT in data, we pass None so COALESCE uses DB value.
+            # If a field IS in data but empty string, we might want to allow clearing it? 
+            # The user requested COALESCE logic which implies "if None, keep old".
+            # But earlier we handled empty strings as None.
+            # Let's stick to the user's specific request: "Use COALESCE... to only update fields that are present"
+            
+            name_val = data.get('name')
+            phone_val = data.get('phone')
+            birthdate_val = data.get('birthdate')
+            bio_val = data.get('bio')
+            avatar_val = data.get('avatar_url')
+            
+            # Handle empty strings for Date/optional fields if they come from form as ''
+            if birthdate_val == '': birthdate_val = None
+            if phone_val == '': phone_val = None
+            if bio_val == '': bio_val = None
+            if avatar_val == '': avatar_val = None
+
+            params = (name_val, phone_val, birthdate_val, bio_val, avatar_val, self.user_id)
+            
+            # 3. Execute & Commit
+            cur.execute(sql, params)
+            self.conn.commit()
+            print("DEBUG: SQL Executed and COMMITTED successfully.")
+            
+            # 4. Verify Update
+            if cur.rowcount == 0:
+                print("DEBUG: WARNING - 0 rows updated! Check user_id.")
+                
+            cur.close()
+            # self._load_profile() # Reload to keep object in sync - Optional but good practice
+            return True
+        except Exception as e:
+            print(f"DEBUG: Model Error: {e}")
+            if self.conn: self.conn.rollback()
+            return False
 
     def get_attempt_history(self):
         """Fetches all past test attempts for this user."""

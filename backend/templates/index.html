@@ -32,12 +32,30 @@
                 <span class="brand-name">PrepWise</span>
             </a>
 
-            <!-- Profile Avatar (Visible on all screens, controlled by JS) -->
+            <!-- Profile Avatar (Visible if logged in via Session) -->
+            {% if session.get('user_id') %}
+            <div id="profileAvatarContainer" class="profile-section order-lg-last ms-lg-auto">
+                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle-sm">
+                    {% elif user and user.avatar_url %}
+                    <img src="{{ user.avatar_url }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle-sm">
+                    {% else %}
+                    <span id="navbarUserInitial" class="fw-bold">{% if session.get('user_name') %}{{
+                        session['user_name'][0] }}{% else %}U{% endif %}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Original JS hook for client-side fallback (optional, but keep container if needed by script.js) -->
             <div id="profileAvatarContainer" class="profile-section d-none order-lg-last ms-lg-auto">
                 <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
                     <span id="navbarUserInitial" class="fw-bold">U</span>
                 </div>
             </div>
+            {% endif %}
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
                 aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +68,7 @@
                         <a class="nav-link active" aria-current="page" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Quizzes</a>
+                        <a class="nav-link" href="{{ url_for('student_dashboard') }}">Quizzes</a>       
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Leaderboard</a>
@@ -58,7 +76,8 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
-                    <!-- Login Button Container -->
+                    <!-- Login Button: Hide if Session Active -->
+                    <!-- Login Button: Controlled by JS, but rendered always to ensure availability -->
                     <div id="loginBtnContainer">
                         <a href="{{ url_for('login') }}" class="btn btn-auth btn-signup-highlight">Login</a>
                     </div>
@@ -520,18 +539,30 @@
                 <!-- User Info -->
                 <div class="text-center mb-2">
                     <div class="avatar-large mx-auto mb-2">
-                        <span id="offcanvasUserInitial">U</span>
+                        {% if session.get('avatar_url') %}
+                        <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                            class="avatar-circle">
+                        {% elif user and user.avatar_url %}
+                        <img src="{{ user.avatar_url }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                            class="avatar-circle">
+                        {% else %}
+                        <span id="offcanvasUserInitial">{% if session.get('user_name') %}{{ session['user_name'][0] }}{%
+                            else %}U{% endif %}</span>
+                        {% endif %}
                     </div>
-                    <h4 class="fw-bold mb-0" id="offcanvasUserName">User Name</h4>
-                    <p class="text-muted small" id="offcanvasUserEmail">user@example.com</p>
+                    <h4 class="fw-bold mb-0" id="offcanvasUserName">{% if session.get('user_name') %}{{
+                        session['user_name'] }}{% else %}User Name{% endif %}</h4>
+                    <p class="text-muted small" id="offcanvasUserEmail">{% if user %}{{ user.email }}{% else
+                        %}user@example.com{% endif %}</p>
                 </div>
 
                 <!-- Menu Links -->
                 <div class="d-grid gap-2 mb-auto">
-                    <a href="#" class="btn btn-light text-start p-2 profile-link">
-                        <i class="fa-solid fa-user me-3 text-secondary"></i> My Profile
+                    <a href="{{ url_for('profile') }}" class="btn btn-light text-start p-2 profile-link">
+                        <i class="fa-solid fa-user me-3 text-primary"></i> My Profile
                     </a>
-                    <a href="#" id="dashboardLink" class="btn btn-light text-start p-2 profile-link">
+                    <a href="{{ url_for('student_dashboard') }}" id="dashboardLink"
+                        class="btn btn-light text-start p-2 profile-link">
                         <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
                     </a>
                     <a href="#" class="btn btn-light text-start p-2 profile-link">

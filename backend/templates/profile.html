@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sticker-container">
+        <div class="sticker s1">❓</div>
+        <div class="sticker s2">📚</div>
+        <div class="sticker s3">🧠</div>
+        <div class="sticker s4">🎓</div>
+        <div class="sticker s5">⏱️</div>
+        <div class="sticker s6">✅</div>
+        <div class="sticker s7">📝</div>
+        <div class="sticker s8">💡</div>
+        <div class="sticker s9">🏆</div>
+        <div class="sticker s10">🎯</div>
+    </div>
+    <div class="profile-card">
+        <div class="avatar-container">
+            <label for="avatar-upload">
+                <img src="{{ url_for('static', filename='images/avatar.png') }}"
+                    onerror="this.src='https://via.placeholder.com/150'" alt="Profile Avatar" class="avatar"
+                    id="avatar-img">
+                <div class="upload-overlay"></div>
+            </label>
+            <input type="file" id="avatar-upload" name="avatar" hidden accept="image/*">
+        </div>
+
+        <form id="profile-form" enctype="multipart/form-data">
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="label">Name:</span>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+                <!-- Email is usually read-only or handled separately -->
+                <div class="detail-item">
+                    <span class="label">Email:</span>
+                    <input type="email" id="email" name="email" placeholder="Your Email" readonly
+                        style="opacity: 0.7; cursor: not-allowed;">
+                </div>
+                <div class="detail-item">
+                    <span class="label">Contact:</span>
+                    <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div class="detail-item">
+                    <span class="label">Birthdate:</span>
+                    <input type="date" id="birthdate" name="birthdate">
+                </div>
+                <div class="detail-item">
+                    <span class="label">Bio:</span>
+                    <textarea id="bio" name="bio" placeholder="Tell us about yourself..." rows="5"></textarea>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='/dashboard'">Dashboard</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const form = document.getElementById('profile-form');
+            const submitBtn = document.querySelector('.btn-primary');
+            const originalBtnText = submitBtn.innerText;
+            const avatarInput = document.getElementById('avatar-upload');
+            const avatarImg = document.getElementById('avatar-img');
+
+            // 1. Image Preview
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        avatarImg.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 2. Fetch Profile Data
+            try {
+                const res = await fetch('/api/user/profile');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Populate fields if data exists
+                    if (data.name) document.getElementById('name').value = data.name;
+                    if (data.email) document.getElementById('email').value = data.email;
+                    if (data.phone) document.getElementById('phone').value = data.phone;
+                    if (data.birthdate) document.getElementById('birthdate').value = data.birthdate;
+                    if (data.bio) document.getElementById('bio').value = data.bio;
+
+                    // Update Avatar with cache busting
+                    if (data.avatar_url) {
+                        avatarImg.src = data.avatar_url + "?t=" + new Date().getTime();
+                    }
+                } else {
+                    console.error("Failed to load profile");
+                }
+            } catch (err) {
+                console.error("Error fetching profile:", err);
+            }
+
+            // 3. Handle Submission (Multipart Form Data)
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                submitBtn.innerText = 'Saving...';
+                submitBtn.style.opacity = '0.7';
+                submitBtn.disabled = true;
+
+                const formData = new FormData(form);
+
+                // Manually append the file because the input is outside the <form> tag
+                if (avatarInput.files.length > 0) {
+                    formData.append('avatar', avatarInput.files[0]);
+                    console.log("Appended avatar file:", avatarInput.files[0].name);
+                } else {
+                    console.log("No new avatar file selected.");
+                }
+
+                // Explicitly append the file if it's not automatically caught (it should be if input has name="avatar")
+                // but since we are using new FormData(form), it grabs all inputs with 'name' attributes.
+                // We just need to make sure the file input has name="avatar".
+
+                try {
+                    const res = await fetch('/api/user/profile', {
+                        method: 'POST',
+                        body: formData // No Content-Type header needed for FormData results in correct boundary
+                    });
+
+                    if (res.ok) {
+                        const result = await res.json();
+                        // Success Feedback
+                        submitBtn.innerText = 'Saved Successfully!';
+                        submitBtn.style.backgroundColor = '#10B981';
+                        submitBtn.style.borderColor = '#10B981';
+                        submitBtn.style.opacity = '1';
+
+                        // Update Avatar from response if available (confirmation)
+                        if (result.avatar_url) {
+                            avatarImg.src = result.avatar_url + "?v=" + new Date().getTime(); // Force reload
+                        }
+                    } else {
+                        submitBtn.innerText = 'Error Saving';
+                        submitBtn.style.backgroundColor = '#EF4444';
+                    }
+                } catch (err) {
+                    console.error("Save error:", err);
+                    submitBtn.innerText = 'Error';
+                    submitBtn.style.backgroundColor = '#EF4444';
+                }
+
+                // Reset button after delay
+                setTimeout(() => {
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.style.borderColor = '';
+                    submitBtn.disabled = false;
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>
