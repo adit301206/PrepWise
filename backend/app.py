@@ -11,9 +11,19 @@ from psycopg2.extras import RealDictCursor
 from datetime import date
 import uuid
 from models import User, HistoryStack
+import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
+
+# Configure Gemini
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    # USE THE NEW LITE MODEL FOR THE FREE TIER TO PREVENT 404 AND 429 ERRORS
+    model = genai.GenerativeModel('gemini-2.5-flash-lite') 
+else:
+    print("WARNING: GEMINI_API_KEY not found in .env")
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
@@ -97,6 +107,7 @@ def student_dashboard():
     daily_percentage = 0
     history_list = []
     analytics_data = {}
+    leaderboard_data = [] # Safe Fallback
     
     try:
         if user_id and conn:
@@ -141,11 +152,23 @@ def student_dashboard():
                 
             if daily_percentage > 100: daily_percentage = 100
 
+            # --- Leaderboard DSA Integration ---
+            try:
+                from models import LeaderboardDSA
+                lb_engine = LeaderboardDSA(conn)
+                leaderboard_data = lb_engine.get_top_students(limit=5)
+            except Exception as e:
+                print(f"Leaderboard Error: {e}")
+                import traceback
+                traceback.print_exc()
+                leaderboard_data = []
+
         return render_template('student_dashboard.html', 
                              history=history_list, 
                              user_stats=analytics_data,
                              daily_count=daily_count,
                              daily_percentage=daily_percentage,
+                             leaderboard=leaderboard_data,  # <--- NEW VARIABLE
                              user=current_user)
 
     except Exception as e:
@@ -166,7 +189,7 @@ def dashboard():
         return redirect(url_for('login'))
     
     role = session.get('role', 'student')
-    if role == 'teacher':
+    if role in ['teacher', 'admin']:
         return redirect(url_for('teacher_console'))
     else:
         return redirect(url_for('student_dashboard'))
@@ -240,13 +263,24 @@ def teacher_console():
         
         cur.close()
 
+        # 7. Generate Global Analytics Charts
+        from analytics_engine import GlobalAnalyticsEngine
+        # Re-use connection or get a fresh one if needed. 
+        # Since cur.close() only closes the cursor, conn is still open if it wasn't closed.
+        # However, to be safe and clean, let's just pass the existing 'conn' 
+        # (Assuming it is still valid. get_db() returns g.db which is valid for request duration)
+        
+        analytics_engine = GlobalAnalyticsEngine(conn)
+        charts = analytics_engine.generate_global_charts()
+
         return render_template('teacher_console.html', 
                              stats=stats, 
                              recent_users=recent_activity, 
                              users=all_users, 
                              subjects=subjects, 
                              topics=topics, 
-                             questions=questions)
+                             questions=questions,
+                             charts=charts)
                              
     except Exception as e:
         print(f"Error loading teacher console: {e}")
@@ -419,6 +453,30 @@ def analytics():
                          strongest_topics=strongest_topics,
                          charts=charts)
 
+@app.route('/api/analytics/progress-chart', methods=['POST'])
+def update_progress_chart():
+    from analytics_engine import AnalyticsEngine
+    
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    user_id = session['user_id']
+    conn = get_db()
+    
+    if not conn:
+        return jsonify({"error": "DB Connection Error"}), 500
+        
+    data = request.json
+    time_filter = data.get('time_filter', '7d')
+    
+    try:
+        engine = AnalyticsEngine(user_id, conn)
+        chart_b64 = engine.generate_progress_chart_img(time_filter)
+        return jsonify({"chart": chart_b64})
+    except Exception as e:
+        print(f"Chart Update Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/start-quiz', methods=['GET', 'POST'])
 def start_quiz():
     """
@@ -567,6 +625,7 @@ def quiz_result():
     try:
         score = int(request.args.get('score', 0))
         total = int(request.args.get('total', 10))
+        skipped = int(request.args.get('skipped', 0))
         
         percentage = (score / total) * 100 if total > 0 else 0
         degree = (percentage / 100) * 360  # For Conic Gradient
@@ -581,6 +640,7 @@ def quiz_result():
         return render_template('result.html', 
                              score=score, 
                              total=total, 
+                             skipped=skipped, 
                              score_percent=int(percentage), 
                              percentage=f"{degree:.1f}", # Passing degrees for CSS
                              feedback_message=msg)
@@ -617,12 +677,181 @@ def save_quiz_result():
         # Assuming frontend will send it.
         
         success = user.save_attempt(topic_id, score, total)
+        
+        # 2. Save Detailed Analysis to Session (Temporary)
+        # We do this regardless of DB success to allow review even if DB fails
+        detailed_history = data.get('detailed_history', [])
+        session['latest_quiz_analysis'] = {
+            'score': score,
+            'total': total,
+            'topic_id': topic_id,
+            'history': detailed_history
+        }
+        
         if success:
             return jsonify({"status": "success"})
         else:
             return jsonify({"status": "error", "message": "Database insert failed"}), 500
             
     return jsonify({"error": "DB Connection failed"}), 500
+
+@app.route('/quiz/review')
+def quiz_review():
+    """Displays detailed analysis of the last taken quiz."""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    analysis = session.get('latest_quiz_analysis')
+    
+    if not analysis:
+        # Fallback or redirect if no recent quiz found
+        return redirect(url_for('student_dashboard'))
+        
+    return render_template('review.html', 
+                         analysis=analysis,
+                         questions=analysis.get('history', []))
+
+    return render_template('review.html', 
+                         analysis=analysis,
+                         questions=analysis.get('history', []))
+
+@app.route('/api/analyze-performance', methods=['POST'])
+def analyze_performance():
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    analysis = session.get('latest_quiz_analysis')
+    if not analysis:
+        return jsonify({"error": "No recent quiz found"}), 404
+        
+    history = analysis.get('history', [])
+    score = analysis.get('score')
+    total = analysis.get('total')
+    
+    # Construct Prompt
+    prompt = f"""
+    You are an AI Tutor. Analyze the student's quiz performance.
+    Score: {score}/{total}
+    
+    Questions & Answers:
+    """
+    
+    for q in history:
+        status = "Correct" if q['is_correct'] else "Skipped" if q['is_skipped'] else "Incorrect"
+        prompt += f"- Q: {q['question_text']}\n  Status: {status}\n"
+        if not q['is_correct'] and not q['is_skipped']:
+             prompt += f"  Student Chose: {q['user_selected_text']}\n  Correct: {q['correct_option_text']}\n"
+             
+    prompt += """
+    
+    Provide a concise analysis in Markdown:
+    1. **Strengths**: What did they do well?
+    2. **Weaknesses**: Which concepts need review?
+    3. **Actionable Tips**: specific advice to improve.
+    Keep it encouraging but constructive. Max 200 words.
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return jsonify({"analysis": response.text})
+    except Exception as e:
+        print(f"AI Analysis Error: {e}")
+        return jsonify({"error": "AI Service Unavailable"}), 500
+
+@app.route('/api/review/ai-insight', methods=['POST'])
+def review_ai_insight():
+    import re
+    
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    analysis = session.get('latest_quiz_analysis')
+    if not analysis:
+        return jsonify({'error': 'No quiz data found in session.'}), 400
+        
+    score = analysis.get('score')
+    total = analysis.get('total')
+    history = analysis.get('history', [])
+    
+    # Isolate mistakes for AI Analysis
+    wrong_skipped = [q for q in history if not q.get('is_correct')]
+    
+    prompt = f"The student scored {score} out of {total} on their recent quiz.\n"
+    
+    if wrong_skipped:
+        prompt += "They struggled with the following questions:\n"
+        for q in wrong_skipped:
+            status = "Skipped" if q.get('is_skipped') else "Incorrect"
+            prompt += f"- Question: '{q.get('question_text')}' | Status: {status} | Correct Answer: '{q.get('correct_option_text')}'\n"
+        
+        # NEW STRUCTURED PROMPT
+        prompt += """
+        Act as an encouraging, expert AI tutor. Provide a very concise, visually attractive performance summary.
+        Format your response STRICTLY using this exact HTML template structure with Bootstrap classes. Replace the bracketed [ ] info with your brief, punchy text:
+        
+        <h5 style="color: #4f46e5;" class="mb-2 fw-bold"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Insight</h5>
+        <p class="mb-4" style="color: #475569; font-weight: 500;">[1 short sentence of encouragement, and 1 short sentence summarizing their overall performance]</p>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <h6 class="text-danger fw-bold mb-2"><i class="fa-solid fa-circle-xmark me-2"></i>Areas to Review</h6>
+                    <ul style="color: #7f1d1d; font-size: 0.95rem; margin-bottom: 0; padding-left: 1.2rem;">
+                        <li>[Identify a specific concept they missed in max 10 words]</li>
+                        <li>[Identify another concept if applicable, otherwise remove this list item]</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 rounded-3" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2);">
+                    <h6 class="text-success fw-bold mb-2"><i class="fa-solid fa-bullseye me-2"></i>Action Plan</h6>
+                    <ul style="color: #14532d; font-size: 0.95rem; margin-bottom: 0; padding-left: 1.2rem;">
+                        <li>[Give a highly specific, actionable study tip based on their mistakes]</li>
+                        <li>[Give a second tip if applicable, otherwise remove]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        CRITICAL RULES:
+        1. Keep the text extremely brief and scannable. No paragraphs.
+        2. Output ONLY the HTML structure requested above.
+        3. ABSOLUTELY NO <style>, <script>, <html>, <head>, or <body> tags.
+        4. Do NOT wrap your response in markdown code blocks (like ```html).
+        """
+    else:
+        # PERFECT SCORE PROMPT
+        prompt += """
+        They got a perfect score! Output exactly this HTML:
+        <div class="text-center py-3">
+            <div class="display-1 mb-3">🎉</div>
+            <h4 class="text-success fw-bold mb-2"><i class="fa-solid fa-trophy text-warning me-2"></i>Flawless Victory!</h4>
+            <p class="text-muted mb-0" style="font-size: 1.1rem;">Outstanding job! You demonstrated complete mastery of these topics. Keep up the excellent momentum!</p>
+        </div>
+        """
+        
+    try:
+        # Generate content using the initialized model
+        chat = model.start_chat()
+        response = chat.send_message(prompt)
+        
+        # AGGRESSIVE SANITIZATION
+        clean_text = response.text.strip()
+        
+        # 1. Strip markdown backticks
+        import re
+        clean_text = re.sub(r'^```(html)?|```$', '', clean_text, flags=re.IGNORECASE | re.MULTILINE).strip()
+        # 2. Strip ALL <style> blocks and their contents
+        clean_text = re.sub(r'<style[^>]*>[\s\S]*?</style>', '', clean_text, flags=re.IGNORECASE)
+        # 3. Strip structural HTML tags that break the DOM
+        clean_text = re.sub(r'</?(html|head|body|meta|title|!doctype)[^>]*>', '', clean_text, flags=re.IGNORECASE)
+        
+        return jsonify({'insight': clean_text.strip()})
+        
+    except Exception as e:
+        print(f"AI Insight Error: {e}")
+        return jsonify({'error': "The AI is currently resting. Please try again later."}), 500
+
 
 # --- API ROUTES (Backend Logic) ---
 
@@ -910,6 +1139,91 @@ def login_api():
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route('/settings')
+def settings():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    conn = get_db()
+    
+    stats = {'accuracy': 0, 'quizzes_taken': 0, 'streak': 0, 'strongest': [], 'weakest': []}
+    charts = {} # NEW: Hold the generated graphs
+    
+    if conn:
+        try:
+            from analytics_engine import AnalyticsEngine
+            engine = AnalyticsEngine(user_id, conn)
+            
+            overall = engine.get_overall_stats()
+            topic_stats = engine.process_topic_performance()
+            
+            stats['accuracy'] = overall.get('accuracy', 0)
+            stats['quizzes_taken'] = overall.get('total_quizzes', 0)
+            stats['streak'] = overall.get('streak', 0) 
+            
+            sorted_topics = sorted(topic_stats.items(), key=lambda x: x[1]['avg_score'], reverse=True) if isinstance(topic_stats, dict) else topic_stats
+            
+            # Helper to extract data depending on structure
+            def get_data(data):
+                if isinstance(data, list):
+                    return data
+                # If dict (from old implementation?), convert to list
+                return [{'name': k, 'score': v['avg_score']} for k, v in data.items()]
+
+            # Just use engine methods which are already standardized in previous steps or standard list
+            strongest = engine.get_strongest_areas()
+            weakest = engine.get_weakest_areas()
+            
+            stats['strongest'] = [{'name': t['topic'], 'score': t['accuracy']} for t in strongest]
+            stats['weakest'] = [{'name': t['topic'], 'score': t['accuracy']} for t in weakest]
+            
+            # NEW: Generate visual charts for the PDF
+            charts = engine.generate_charts()
+            
+        except Exception as e:
+            print(f"Settings Analytics Error: {e}")
+
+    return render_template('settings.html', 
+                           stats=stats, 
+                           charts=charts, # Pass to template
+                           user_email=session.get('user_email', ''), 
+                           user_name=session.get('user_name', 'Student'))
+
+@app.route('/api/settings/update-email', methods=['POST'])
+def update_email_api():
+    if 'user_id' not in session or not supabase: return jsonify({"error": "Unauthorized"}), 401
+    try:
+        res = supabase.auth.update_user({"email": request.json.get('new_email')})
+        return jsonify({"message": "Verification link sent to new email."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/settings/update-password', methods=['POST'])
+def update_password_settings_api():
+    if 'user_id' not in session or not supabase: return jsonify({"error": "Unauthorized"}), 401
+    try:
+        res = supabase.auth.update_user({"password": request.json.get('new_password')})
+        return jsonify({"message": "Password updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/settings/delete-history', methods=['POST'])
+def delete_history_api():
+    if 'user_id' not in session: return jsonify({"error": "Unauthorized"}), 401
+    conn = get_db()
+    if conn:
+        try:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM attempts WHERE user_id = %s", (session['user_id'],))
+            conn.commit()
+            cur.close()
+            return jsonify({"message": "All quiz history deleted successfully."})
+        except Exception as e:
+            return jsonify({"error": "Database error occurred."}), 500
+    return jsonify({"error": "No database connection."}), 500
+
 @app.route('/profile')
 def profile():
     """Renders the user profile page."""
@@ -1096,6 +1410,56 @@ def update_password_api():
     except Exception as e:
         print(f"Update Password Error: {e}")
         return jsonify({"error": str(e)}), 400
+
+
+@app.route('/api/chat', methods=['POST'])
+def ai_chat_api():
+    if not GEMINI_API_KEY:
+        return jsonify({"error": "AI is currently unavailable (API key missing)."}), 503
+        
+    data = request.json
+    action = data.get('action') 
+    history = data.get('history', [])
+    
+    try:
+        # TRIM HISTORY: Keep only the last 4 messages to prevent Token Limits!
+        recent_history = history[-4:] if len(history) > 4 else history
+        
+        formatted_history = []
+        for msg in recent_history:
+            role = "model" if msg['sender'] == 'ai' else "user"
+            formatted_history.append({"role": role, "parts": [msg['text']]})
+            
+        chat = model.start_chat(history=formatted_history)
+        
+        if action == 'explain':
+            q_text = data.get('question')
+            selected = data.get('selected')
+            correct = data.get('correct')
+            
+            system_instruction = "You are PrepWise AI, a friendly and encouraging expert tutor. Explain concepts clearly and concisely. "
+            internal_prompt = f"{system_instruction}\nI just answered a question incorrectly.\nQuestion: '{q_text}'\nI chose: '{selected}'\nThe correct answer is: '{correct}'\nCan you explain exactly why my choice was wrong and why the correct answer is right? Keep it brief and encouraging."
+            
+            response = chat.send_message(internal_prompt)
+            return jsonify({"reply": response.text, "internal_prompt": internal_prompt})
+            
+        elif action == 'chat':
+            message = data.get('message')
+            if not message:
+                return jsonify({"error": "Message is required"}), 400
+                
+            response = chat.send_message(message)
+            return jsonify({"reply": response.text})
+            
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Gemini API Error: {error_msg}")
+        
+        # CATCH THE 429 ERROR GRACEFULLY
+        if "429" in error_msg or "Quota" in error_msg or "exhausted" in error_msg.lower():
+            return jsonify({"error": "Whoa there! The AI speed limit was hit. Please wait a minute and try again."}), 429
+            
+        return jsonify({"error": "Sorry, I'm having trouble connecting to my brain right now."}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,397 @@
+/* Global Styles */
+body {
+    background-color: #E9D5FF;
+    /* Lavender BG */
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* ========================================= */
+/* NAVBAR STYLES (Consistent) */
+/* ========================================= */
+.navbar {
+    background-color: #bfdbfe;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid black;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.logo {
+    height: 45px;
+    width: 45px;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.brand-name {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #2563EB, #9333EA, #DB2777);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.student-badge {
+    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    cursor: pointer;
+    font-weight: 700;
+    color: #475569;
+}
+
+/* ========================================= */
+/* REVIEW CONTAINER */
+/* ========================================= */
+
+.review-container {
+    flex: 1;
+    padding: 2rem;
+    padding-top: 8rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.glass-header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(31, 38, 135, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.review-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.review-subtitle {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* ========================================= */
+/* QUESTION CARDS */
+/* ========================================= */
+
+.question-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-left: 6px solid transparent;
+    transition: transform 0.2s;
+}
+
+.question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Status variants */
+.question-card.status-correct {
+    border-left-color: #22c55e;
+    background: linear-gradient(to right, rgba(34, 197, 94, 0.05), white 20%);
+}
+
+.question-card.status-incorrect {
+    border-left-color: #ef4444;
+    background: linear-gradient(to right, rgba(239, 68, 68, 0.05), white 20%);
+}
+
+.question-card.status-skipped {
+    border-left-color: #f59e0b;
+    background: linear-gradient(to right, rgba(245, 158, 11, 0.05), white 20%);
+}
+
+/* Card Header */
+.q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.q-number {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-correct .status-badge {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-incorrect .status-badge {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-skipped .status-badge {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.q-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Options/Answers Grid */
+.answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .answers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.answer-box {
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.answer-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-transform: uppercase;
+}
+
+.answer-content {
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Specific highlighting */
+.user-answer.status-correct {
+    background-color: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+}
+
+.user-answer.status-incorrect {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.correct-answer-box {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.correct-answer-box .answer-content {
+    color: #166534;
+}
+
+/* Explanation */
+.explanation-box {
+    background-color: #f1f5f9;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #6366f1;
+}
+
+.exp-title {
+    font-weight: 700;
+    color: #4338ca;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exp-text {
+    font-size: 0.95rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.btn-back {
+    display: block;
+    width: fit-content;
+    margin: 2rem auto 4rem;
+    background: white;
+    color: #475569;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background: #f8fafc;
+}
+
+/* ========================================= */
+/* OFFCANVAS PROFILE MENU */
+/* ========================================= */
+
+.custom-offcanvas {
+    background: linear-gradient(160deg, #bfdbfe 0%, #e9d5ff 50%, #fca5a5 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+    font-family: var(--font-primary, 'Inter', sans-serif);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    z-index: 1080 !important;
+    /* Forces it above the navbar */
+}
+
+.custom-offcanvas .offcanvas-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.5rem 1.5rem 1rem;
+}
+
+.avatar-large {
+    position: relative;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+.avatar-circle {
+    border: 4px solid white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease;
+    background-color: white;
+}
+
+.avatar-large:hover .avatar-circle {
+    transform: scale(1.05);
+}
+
+#offcanvasUserName {
+    color: #1e293b;
+    letter-spacing: -0.5px;
+    margin-top: 0.5rem;
+}
+
+#offcanvasUserEmail {
+    font-weight: 500;
+}
+
+/* Profile Navigation Links */
+.profile-link {
+    background: transparent !important;
+    border: none !important;
+    color: #475569 !important;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 0.8rem 1rem !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+    display: flex;
+    align-items: center;
+}
+
+.profile-link i {
+    width: 25px;
+    text-align: center;
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.profile-link:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+    /* Soft Indigo background */
+    color: #4338ca !important;
+    transform: translateX(6px);
+}
+
+.profile-link:hover i {
+    transform: scale(1.1);
+}
+
+/* Logout Button */
+.custom-offcanvas .btn-danger {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.7rem;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    transition: all 0.3s ease;
+}
+
+.custom-offcanvas .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.custom-offcanvas .brand-name {
+    font-size: 1.8rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+}

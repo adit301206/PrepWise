@@ -175,7 +175,7 @@
                         <p class="stat-desc small opacity-75 mb-0 text-muted">Visual breakdown of your strengths</p>
                     </div>
 
-                    <div class="text-center p-2">
+                    <div class="text-center p-2 chart-scroll-container custom-scrollbar">
                         {% if charts.topic_chart %}
                         <img src="data:image/png;base64,{{ charts.topic_chart }}" class="img-fluid rounded"
                             alt="Topic Accuracy Chart">
@@ -191,21 +191,44 @@
         <div class="row mt-5 animate-fade-up delay-100">
             <div class="col-12">
                 <div class="stat-card h-100 p-4 border-0 shadow-sm card-pink">
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <div class="icon-box-xl">
-                            <i class="fa-solid fa-chart-line"></i>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-box-xl">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h5 class="stat-label fs-2 mb-0">Progress Report</h5>
+                                <p class="stat-desc small opacity-75 mb-0">Your score history over time</p>
+                            </div>
                         </div>
-                        <h5 class="stat-label fs-2 mb-0">Progress Report</h5>
-                    </div>
-                    <p class="stat-desc small opacity-75 mb-4">Your score history over time</p>
 
-                    <div class="w-100 rounded-3 bg-white p-3 text-center">
-                        {% if charts.progress_chart %}
-                        <img src="data:image/png;base64,{{ charts.progress_chart }}" class="img-fluid rounded"
-                            alt="Progress Chart">
-                        {% else %}
-                        <p class="text-muted py-5">No progress data available yet.</p>
-                        {% endif %}
+                        <div class="custom-dropdown-wrapper">
+                            <div class="custom-dropdown-trigger" id="dropdownTrigger">
+                                <span id="selectedText">Last 7 Days</span>
+                                <i class="fa-solid fa-chevron-down text-pink"></i>
+                            </div>
+
+                            <div class="custom-options" id="dropdownOptions">
+                                <div class="custom-option selected" data-value="7d">Last 7 Days</div>
+                                <div class="custom-option" data-value="today">Today</div>
+                                <div class="custom-option" data-value="this_month">This Month</div>
+                                <div class="custom-option" data-value="prev_month">Previous Month</div>
+                                <div class="custom-option" data-value="this_year">This Year</div>
+                                <div class="custom-option" data-value="lifetime">Lifetime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-100 rounded-3 bg-white p-3 text-center position-relative" style="min-height: 300px;">
+                        <div id="chartLoader" class="d-none position-absolute top-50 start-50 translate-middle"
+                            style="z-index: 10;">
+                            <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+
+                        <img id="progressChartImg" src="data:image/png;base64,{{ charts.progress_chart }}"
+                            class="img-fluid rounded" alt="Progress Chart" style="transition: opacity 0.3s ease;">
                     </div>
                 </div>
             </div>

@@ -65,13 +65,13 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('student_dashboard') }}">Quizzes</a>       
+                        <a class="nav-link" href="{{ url_for('dashboard') }}#quizzes-section">Quizzes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Leaderboard</a>
+                        <a class="nav-link" href="{{ url_for('dashboard') }}#leaderboard-section">Leaderboard</a>
                     </li>
                 </ul>
 

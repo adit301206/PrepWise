@@ -37,9 +37,16 @@
                 </span>
             </div>
 
-            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile">
-                <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
-                    <span id="navbarUserInitial" class="fw-bold">U</span>
+            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile" style="cursor: pointer;"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile">
+                <div class="avatar"
+                    style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.5); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 700; color: #475569;">
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session.get('avatar_url') }}" alt="Profile"
+                        style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">
+                    {% else %}
+                    <span class="fw-bold">{{ session.get('user_name', 'U')[0]|upper }}</span>
+                    {% endif %}
                 </div>
             </div>
 
@@ -53,7 +60,7 @@
                     <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
                         <i class="fa-solid fa-chart-pie me-2"></i>Analytics
                     </a>
-                    <button class="btn btn-settings">
+                    <button class="btn btn-settings" onclick="location.href='{{ url_for('settings') }}'">
                         <i class="fa-solid fa-gear me-2"></i>Settings
                     </button>
                 </div>
@@ -115,10 +122,15 @@
                     <span class="stat-label">Correct</span>
                     <span class="stat-value">{{ score }}</span>
                 </div>
+                <div class="stat-pill skipped">
+                    <i class="fa-solid fa-forward mb-1 text-warning"></i>
+                    <span class="stat-label">Skipped</span>
+                    <span class="stat-value">{{ skipped|default(0) }}</span>
+                </div>
                 <div class="stat-pill wrong">
                     <i class="fa-solid fa-times-circle mb-1 text-danger"></i>
                     <span class="stat-label">Wrong</span>
-                    <span class="stat-value">{{ total - score }}</span>
+                    <span class="stat-value">{{ total - score - (skipped|default(0)) }}</span>
                 </div>
             </div>
 
@@ -126,9 +138,11 @@
                 <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary-custom">
                     <i class="fa-solid fa-house me-2"></i> Back to Dashboard
                 </a>
-                <button class="btn btn-outline-custom" onclick="alert('Detailed analysis features coming soon!')">
-                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i> Call Analytics AI
-                </button>
+
+                <!-- NEW: Review Button -->
+                <a href="{{ url_for('quiz_review') }}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-magnifying-glass-chart me-2"></i> View Your Analysis
+                </a>
             </div>
 
         </div>
@@ -184,18 +198,28 @@
                 }, 800);
             }
 
-            // Answer Map Generation (Mock Visuals based on Score)
-            // Since we might not have individual question data in this simple result view,
-            // we will generate 'Correct' dots first, then 'Wrong' dots.
+            // Answer Map Generation (Mock Visuals based on Score/Skipped)
             const mapContainer = document.getElementById('answerMap');
+            const skipped = Number("{{ skipped | default(0) }}");
+            const wrong = total - score - skipped;
+
             if (mapContainer) {
+                // Correct Dots
                 for (let i = 0; i < score; i++) {
                     const dot = document.createElement('div');
                     dot.className = 'answer-dot correct';
                     dot.title = 'Correct';
                     mapContainer.appendChild(dot);
                 }
-                for (let i = 0; i < (total - score); i++) {
+                // Skipped Dots
+                for (let i = 0; i < skipped; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'answer-dot skipped';
+                    dot.title = 'Skipped';
+                    mapContainer.appendChild(dot);
+                }
+                // Wrong Dots
+                for (let i = 0; i < wrong; i++) {
                     const dot = document.createElement('div');
                     dot.className = 'answer-dot wrong';
                     dot.title = 'Incorrect';
@@ -204,6 +228,53 @@
             }
         });
     </script>
+    </script>
+
+    <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+        aria-labelledby="offcanvasProfileLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <div class="text-center mb-2">
+                <div class="avatar-large mx-auto mb-2">
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
+                    {% else %}
+                    <span id="offcanvasUserInitial"
+                        class="d-flex align-items-center justify-content-center bg-secondary text-white fw-bold"
+                        style="width: 80px; height: 80px; border-radius: 50%; font-size: 2rem;">
+                        {{ session.get('user_name', 'U')[0]|upper }}
+                    </span>
+                    {% endif %}
+                </div>
+                <h4 class="fw-bold mb-0" id="offcanvasUserName">{{ session.get('user_name', 'User Name') }}</h4>
+                <p class="text-muted small" id="offcanvasUserEmail">{{ session.get('user_email', 'user@example.com') }}
+                </p>
+            </div>
+
+            <div class="d-grid gap-2 mb-auto">
+                <a href="{{ url_for('profile') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-user me-3 text-primary"></i> My Profile
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                </a>
+                <a href="{{ url_for('settings') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                </a>
+            </div>
+
+            <div class="mt-2 pt-2 border-top text-center">
+                <a href="{{ url_for('logout') }}" class="btn btn-danger w-100 mb-2">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                </a>
+                <div class="brand-name fs-4 fw-bold text-muted">PrepWise</div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

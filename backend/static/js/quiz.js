@@ -33,7 +33,9 @@ class QuizManager {
             diffBadge: document.getElementById('difficulty-badge'),
             optionsBox: document.getElementById('options-container'),
             btnPrev: document.getElementById('btn-prev'),
+            btnExplain: document.getElementById('btn-explain'), // AI Tutor
             btnAction: document.getElementById('btn-action'),
+            btnConfirm: document.getElementById('btn-confirm-finish'), // FIXED: Added missing selector
             toast: document.getElementById('explanation-toast'),
             toastHead: document.getElementById('toast-header'),
             toastBody: document.getElementById('toast-body')
@@ -55,13 +57,75 @@ class QuizManager {
             if (this.currentIndex > 0) this.loadQuestion(this.currentIndex - 1);
         });
 
+        // Explain Button (AI Tutor)
+        this.dom.btnExplain.addEventListener('click', () => {
+            const q = this.questions[this.currentIndex];
+            const state = this.history[this.currentIndex];
+            // Get text for options
+            const selectedText = q[`option_${state.selected.toLowerCase()}`];
+            const correctText = q[`option_${q.correct_option.toLowerCase()}`];
+
+            this.openAIExplanation(q.question_text, selectedText, correctText);
+        });
+
+        // Chat Form (Follow-up) - Updated with robust logic
+        const chatForm = document.getElementById('ai-chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inputField = document.getElementById('chat-input');
+                const submitBtn = document.querySelector('#ai-chat-form button');
+                const msg = inputField.value.trim();
+                if (!msg) return;
+
+                this.appendMessage('user', msg);
+                inputField.value = '';
+                inputField.disabled = true;
+                submitBtn.disabled = true;
+
+                const typingId = 'typing-chat-' + Date.now();
+                this.appendMessage('ai', `<span id="${typingId}" class="typing-indicator"><span>.</span><span>.</span><span>.</span></span>`);
+
+                try {
+                    const res = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'chat', message: msg, history: this.chatHistory || [] })
+                    });
+
+                    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+                    const data = await res.json();
+
+                    const typingElem = document.getElementById(typingId);
+                    if (typingElem) typingElem.closest('.chat-bubble').remove();
+
+                    if (data.error) {
+                        this.appendMessage('ai', `<span class="text-danger">${data.error}</span>`);
+                    } else if (data.reply) {
+                        this.appendMessage('ai', data.reply);
+                        if (!this.chatHistory) this.chatHistory = [];
+                        this.chatHistory.push({ sender: 'user', text: msg });
+                        this.chatHistory.push({ sender: 'ai', text: data.reply });
+                    }
+                } catch (err) {
+                    console.error("Chat Error:", err);
+                    const typingElem = document.getElementById(typingId);
+                    if (typingElem) typingElem.closest('.chat-bubble').remove();
+                    this.appendMessage('ai', `<span class="text-danger">Network error. Please try again.</span>`);
+                } finally {
+                    inputField.disabled = false;
+                    submitBtn.disabled = false;
+                    inputField.focus();
+                }
+            });
+        }
+
         // Action Button
         this.dom.btnAction.addEventListener('click', () => this.handleAction());
 
         // Confirm Finish Modal Button
-        const btnConfirm = document.getElementById('btn-confirm-finish');
-        if (btnConfirm) {
-            btnConfirm.addEventListener('click', () => {
+        if (this.dom.btnConfirm) {
+            this.dom.btnConfirm.addEventListener('click', () => {
                 // Hide modal first to correct backdrop issues
                 const modalEl = document.getElementById('finishQuizModal');
                 const modal = bootstrap.Modal.getInstance(modalEl);
@@ -70,6 +134,28 @@ class QuizManager {
                 this.finishQuiz();
             });
         }
+
+        // Global Keyboard Shortcuts (A, B, C, D)
+        document.addEventListener('keydown', (e) => {
+            // Ignore if user is typing in an input field (search, chat, etc.)
+            const tag = e.target.tagName.toUpperCase();
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+            const key = e.key.toUpperCase();
+            const optionMap = { 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D' };
+
+            if (optionMap.hasOwnProperty(key)) {
+                const selectedLetter = optionMap[key];
+
+                // Only select if current question has this option
+                const q = this.questions[this.currentIndex];
+                const optKey = `option_${selectedLetter.toLowerCase()}`;
+
+                if (q[optKey]) {
+                    this.selectOption(selectedLetter);
+                }
+            }
+        });
     }
 
     // ================= RENDERERS ================= //
@@ -160,6 +246,13 @@ class QuizManager {
         this.updateActionBtn();
         this.updateSidebarUI();
         this.updateFooterUI();
+
+        // Explain Button State
+        if (state.locked && state.result === 'incorrect') {
+            this.dom.btnExplain.classList.remove('d-none');
+        } else {
+            this.dom.btnExplain.classList.add('d-none');
+        }
     }
 
     // ================= INTERACTION ================= //
@@ -243,6 +336,8 @@ class QuizManager {
         } else {
             state.result = 'incorrect';
             this.showToast(false, q.explanation);
+            // Show Explain Button
+            this.dom.btnExplain.classList.remove('d-none');
         }
 
         // Trigger animations/styles
@@ -262,10 +357,12 @@ class QuizManager {
     }
 
     skipQuestion(state) {
-        state.locked = true;
+        // FIX 1: Do NOT lock the state. Allow the user to come back and answer it later.
+        state.locked = false;
         state.result = 'skipped';
 
-        this.showToast('skipped', 'You skipped this question.');
+        // Update the toast to let them know they can return
+        this.showToast('skipped', 'Skipped. You can return to this from the palette!');
 
         this.updateActionBtn();
         this.updateSidebarUI();
@@ -276,7 +373,10 @@ class QuizManager {
             if (this.currentIndex < this.questions.length - 1) {
                 this.loadQuestion(this.currentIndex + 1);
             } else {
-                this.finishQuiz();
+                // FIX 2: Do NOT auto-finish the quiz if they skip the last question.
+                // Show the confirmation modal so they have a chance to go back and review.
+                const modal = new bootstrap.Modal(document.getElementById('finishQuizModal'));
+                modal.show();
             }
         }, 800);
     }
@@ -338,11 +438,31 @@ class QuizManager {
         btn.innerHTML = '<span class="loading-spinner"></span> Saving...';
         btn.disabled = true;
 
+        // Build Detailed History Array for the Review Page
+        const detailed_history = this.questions.map((q, i) => {
+            const state = this.history[i];
+            let status = 'skipped';
+            if (state.result === 'correct') status = 'correct';
+            else if (state.result === 'incorrect') status = 'incorrect';
+
+            return {
+                question_text: q.question_text,
+                correct_option_text: q[`option_${(q.correct_option || '').toLowerCase()}`] || 'N/A',
+                user_selected_text: state.selected ? q[`option_${state.selected.toLowerCase()}`] : null,
+                is_correct: status === 'correct',
+                is_skipped: status === 'skipped',
+                explanation: q.explanation
+            };
+        });
+
+        const skippedCount = this.history.filter(h => h.result === 'skipped').length;
+
         const payload = {
             user_id: this.userId,
             score: this.score,
             total: this.questions.length,
-            topic_id: this.topicId
+            topic_id: this.topicId,
+            detailed_history: detailed_history // Send data to backend
         };
 
         try {
@@ -351,10 +471,80 @@ class QuizManager {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            window.location.href = `/quiz/result?score=${this.score}&total=${this.questions.length}`;
+            window.location.href = `/quiz/result?score=${this.score}&total=${this.questions.length}&skipped=${skippedCount}`;
         } catch (e) {
             console.error(e);
-            window.location.href = `/quiz/result?score=${this.score}&total=${this.questions.length}`;
+            window.location.href = `/quiz/result?score=${this.score}&total=${this.questions.length}&skipped=${skippedCount}`;
         }
+    }
+
+    // ================= AI TUTOR METHODS ================= //
+
+    openAIExplanation(qText, selectedText, correctText) {
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('aiChatOffcanvas'));
+        offcanvas.show();
+
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.innerHTML = '';
+        this.chatHistory = [];
+
+        // Use a unique ID for safe removal later
+        const typingId = 'typing-explain';
+        this.appendMessage('ai', `<span id="${typingId}" class="typing-indicator"><span>.</span><span>.</span><span>.</span></span>`);
+
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'explain',
+                question: qText,
+                selected: selectedText,
+                correct: correctText,
+                history: []
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(`Server returned ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log("AI Response Data:", data); // DEBUGGING
+
+                // Safely remove typing indicator
+                const typingElem = document.getElementById(typingId);
+                if (typingElem) typingElem.closest('.chat-bubble').remove();
+
+                if (data.error) {
+                    this.appendMessage('ai', `<span class="text-danger">${data.error}</span>`);
+                } else if (data.reply) {
+                    this.appendMessage('ai', data.reply);
+                    this.chatHistory.push({ sender: 'user', text: data.internal_prompt || "Explain mistake" });
+                    this.chatHistory.push({ sender: 'ai', text: data.reply });
+                } else {
+                    this.appendMessage('ai', `<span class="text-danger">Received empty response.</span>`);
+                }
+            })
+            .catch(err => {
+                console.error("Fetch Error:", err);
+                const typingElem = document.getElementById(typingId);
+                if (typingElem) typingElem.closest('.chat-bubble').remove();
+                this.appendMessage('ai', `<span class="text-danger">Failed to connect to AI Tutor. Check browser console for details.</span>`);
+            });
+    }
+
+    appendMessage(sender, text) {
+        const chatContainer = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-bubble ${sender === 'user' ? 'bubble-user' : 'bubble-ai'}`;
+
+        // Check if text is HTML (typing indicator) or plain text
+        let formattedText = text;
+        if (!text.includes('<span') && !text.includes('<div')) {
+            formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        msgDiv.innerHTML = formattedText;
+        chatContainer.appendChild(msgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 }

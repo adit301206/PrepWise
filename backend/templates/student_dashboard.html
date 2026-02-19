@@ -58,7 +58,7 @@
                     <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
                         <i class="fa-solid fa-chart-pie me-2"></i>Analytics
                     </a>
-                    <button class="btn btn-settings">
+                    <button class="btn btn-settings" onclick="location.href='{{ url_for('settings') }}'">
                         <i class="fa-solid fa-gear me-2"></i>Settings
                     </button>
                 </div>
@@ -235,6 +235,12 @@
             <div id="section-history" class="section-content d-none my-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="section-title mb-0">Quiz History</h3>
+                    {% if history|length > 6 %}
+                    <button id="btnViewMoreHistory"
+                        class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-bold" data-expanded="false">
+                        View More <i class="fa-solid fa-chevron-down ms-2"></i>
+                    </button>
+                    {% endif %}
                 </div>
 
                 {% if history %}
@@ -249,9 +255,9 @@
                                 <th scope="col" class="text-center pe-4">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="historyTableBody">
                             {% for attempt in history %}
-                            <tr>
+                            <tr class="history-row {% if loop.index > 6 %}d-none extra-row{% endif %}">
                                 <td class="ps-4 text-secondary">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="fa-regular fa-calendar text-primary opacity-75"></i>
@@ -297,6 +303,29 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if history|length > 6 %}
+                    <script>
+                        document.getElementById('btnViewMoreHistory').addEventListener('click', function () {
+                            const extraRows = document.querySelectorAll('.extra-row');
+                            const isExpanded = this.getAttribute('data-expanded') === 'true';
+
+                            if (isExpanded) {
+                                // Collapse
+                                extraRows.forEach(row => row.classList.add('d-none'));
+                                this.innerHTML = 'View More <i class="fa-solid fa-chevron-down ms-2"></i>';
+                                this.setAttribute('data-expanded', 'false');
+                            } else {
+                                // Expand
+                                extraRows.forEach(row => {
+                                    row.classList.remove('d-none');
+                                    row.classList.add('fade-in-up');
+                                });
+                                this.innerHTML = 'View Less <i class="fa-solid fa-chevron-up ms-2"></i>';
+                                this.setAttribute('data-expanded', 'true');
+                            }
+                        });
+                    </script>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div class="text-center placeholder-card">
@@ -308,10 +337,58 @@
             </div>
 
             <div id="section-leaderboard" class="section-content d-none my-5">
-                <div class="text-center placeholder-card">
-                    <i class="fa-solid fa-trophy icon-trophy"></i>
-                    <h3 class="placeholder-title">Leaderboard</h3>
-                    <p class="text-muted mt-2">See where you stand among top students!</p>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="section-title mb-0"><i class="fa-solid fa-crown text-warning me-2"></i> Global
+                        Leaderboard
+                    </h3>
+                    <span class="badge bg-purple-light text-purple px-3 py-2 rounded-pill">Top 5 Scholars</span>
+                </div>
+
+                <div class="glass-card p-0 overflow-hidden">
+                    <div class="list-group list-group-flush leaderboard-list">
+                        {% if leaderboard %}
+                        {% for student in leaderboard %}
+                        <div
+                            class="list-group-item d-flex justify-content-between align-items-center p-4 border-bottom-subtle transition-all hover-lift rank-{{ student.rank }}-row">
+
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="rank-badge rank-{{ student.rank }}">
+                                    {% if student.rank == 1 %}<i class="fa-solid fa-trophy text-warning"></i>
+                                    {% elif student.rank == 2 %}<i class="fa-solid fa-medal text-secondary"></i>
+                                    {% elif student.rank == 3 %}<i class="fa-solid fa-medal text-bronze"></i>
+                                    {% else %}#{{ student.rank }}{% endif %}
+                                </div>
+
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-circle-md bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                                        style="width: 45px; height: 45px; border-radius: 50%;">
+                                        {% if student.avatar_url %}
+                                        <img src="{{ student.avatar_url }}" alt="avatar"
+                                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                        {% else %}
+                                        {{ student.initial }}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0 fw-bold text-dark">{{ student.name }}</h5>
+                                        <small class="text-muted">{{ student.quizzes }} Quizzes Completed</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="score-pill px-4 py-2 rounded-pill fw-bold fs-5">
+                                {{ student.score }} <span class="fs-6 fw-normal opacity-75">pts</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="text-center p-5">
+                            <i class="fa-solid fa-ranking-star fa-3x text-muted mb-3 opacity-50"></i>
+                            <h4 class="text-muted fw-bold">No Data Yet</h4>
+                            <p class="text-muted small">Be the first to complete a quiz and claim the #1 spot!</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -362,7 +439,7 @@
                 <a href="#" class="btn btn-light text-start p-2 profile-link">
                     <i class="fa-solid fa-list-check me-3 text-success"></i> My Quizzes
                 </a>
-                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                <a href="{{ url_for('settings') }}" class="btn btn-light text-start p-2 profile-link">
                     <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
                 </a>
             </div>

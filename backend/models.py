@@ -1,4 +1,7 @@
 
+import pytz
+from datetime import timezone
+
 class HistoryStack:
     """
     DSA Implementation: Stack Data Structure for User History.
@@ -141,33 +144,44 @@ class User:
             return False
 
     def get_attempt_history(self):
-        """Fetches all past test attempts for this user."""
-        if not self.conn: return []
-        cur = self.conn.cursor()
-        try:
-            # Fetch ordered by creation time (Oldest -> Newest) so Stack can reverse it properly
-            # We JOIN topics to get topic_name. 
-            # Note: attempts now has topic_id directly.
-            query = """
-                SELECT 
-                    a.attempt_id,
-                    t.topic_name,
-                    a.score,
-                    a.total_questions,
-                    a.percentage,
-                    to_char(a.attempted_at, 'YYYY-MM-DD HH24:MI') as date
-                FROM attempts a
-                LEFT JOIN topics t ON a.topic_id = t.topic_id
-                WHERE a.user_id = %s
-                ORDER BY a.attempted_at ASC
-            """
+        query = """
+            SELECT a.attempt_id, a.score, a.total_questions, a.percentage, a.attempted_at, t.topic_name
+            FROM attempts a
+            JOIN topics t ON a.topic_id = t.topic_id
+            WHERE a.user_id = %s
+            ORDER BY a.attempted_at ASC;
+        """
+        with self.conn.cursor() as cur:
             cur.execute(query, (self.user_id,))
-            return cur.fetchall()
-        except Exception as e:
-            print(f"Error fetching history: {e}")
-            return []
-        finally:
-            cur.close()
+            raw_records = cur.fetchall()
+
+        formatted_history = []
+        # Define the timezone
+        ist_tz = pytz.timezone('Asia/Kolkata')
+        
+        for row in raw_records:
+            db_time = row['attempted_at']
+            
+            # 1. Ensure the DB time is treated as UTC
+            if db_time.tzinfo is None:
+                db_time = db_time.replace(tzinfo=timezone.utc)
+                
+            # 2. Convert to Indian Standard Time (IST) using pytz
+            local_time = db_time.astimezone(ist_tz)
+            
+            # 3. Format strictly as "13 Feb 2026, 09:26 PM"
+            display_date = local_time.strftime("%d %b %Y, %I:%M %p")
+            
+            formatted_history.append({
+                "attempt_id": row['attempt_id'],
+                "topic_name": row['topic_name'],
+                "score": row['score'],
+                "total_questions": row['total_questions'],
+                "percentage": row['percentage'],
+                "date": display_date  # Passed to the Jinja2 template
+            })
+            
+        return formatted_history
 
     def get_analytics(self):
         """Returns analytics like average score and accuracy."""
@@ -232,3 +246,61 @@ class User:
             return False
         finally:
             cur.close()
+
+class LeaderboardDSA:
+    def __init__(self, db_connection):
+        self.conn = db_connection
+
+    def get_top_students(self, limit=5):
+        """
+        Uses a Min-Heap to efficiently find the top N students by total score.
+        Updated to safely handle legacy data.
+        """
+        import heapq
+        
+        query = """
+            SELECT u.name, u.avatar_url, SUM(COALESCE(a.score, 0)) as total_score, COUNT(a.attempt_id) as quizzes_taken
+            FROM users u
+            JOIN attempts a ON u.user_id = a.user_id
+            WHERE LOWER(u.role) = 'student' OR u.role IS NULL
+            GROUP BY u.user_id, u.name, u.avatar_url
+            HAVING SUM(COALESCE(a.score, 0)) > 0;
+        """
+        
+        with self.conn.cursor() as cur:
+            cur.execute(query)
+            students = cur.fetchall()
+            
+        print(f"DEBUG: Leaderboard fetched {len(students)} raw records from DB.") # Debugging line
+
+        # Min-Heap Implementation
+        top_k_heap = []
+        
+        for student in students:
+            score = student['total_score'] or 0
+            name = student['name'] or 'Anonymous'
+            quizzes = student['quizzes_taken'] or 0
+            avatar_url = student['avatar_url']
+            
+            # Push tuple into heap: (score, name, quizzes, avatar_url)
+            heapq.heappush(top_k_heap, (score, name, quizzes, avatar_url))
+            
+            # If heap grows larger than limit, pop the smallest score
+            if len(top_k_heap) > limit:
+                heapq.heappop(top_k_heap)
+                
+        # Sort the top K students descending for the UI
+        top_students = sorted(top_k_heap, key=lambda x: x[0], reverse=True)
+        
+        leaderboard = []
+        for rank, (score, name, quizzes, avatar_url) in enumerate(top_students, start=1):
+            leaderboard.append({
+                "rank": rank,
+                "name": name,
+                "score": score,
+                "quizzes": quizzes,
+                "avatar_url": avatar_url,
+                "initial": name[0].upper() if name else "U"
+            })
+            
+        return leaderboard

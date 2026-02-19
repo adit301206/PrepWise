@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Analysis | PrepWise</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Raleway:wght@700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/review.css') }}?v=1">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top py-3 dashboard-navbar">
+        <div class="container-fluid px-3 px-md-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/PrepWise-Logo.png') }}" alt="PrepWise Logo"
+                    class="logo rounded-circle">
+                <span class="brand-name">PrepWise</span>
+            </a>
+
+            <div class="d-none d-md-block ms-4">
+                <span class="student-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Student
+                </span>
+            </div>
+
+            <div class="profile-badge ms-auto me-3 order-lg-last" title="My Profile" style="cursor: pointer;"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile">
+                <div class="avatar">
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session.get('avatar_url') }}" alt="Profile"
+                        style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;">
+                    {% else %}
+                    <span class="fw-bold">{{ session.get('user_name', 'U')[0]|upper }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="review-container">
+
+        <div class="glass-header">
+            <h1 class="review-title">Detailed Analysis</h1>
+            <p class="review-subtitle">
+                You scored <strong>{{ analysis.score }}</strong> out of <strong>{{ analysis.total }}</strong>
+            </p>
+        </div>
+
+        <div class="glass-header ai-insight-box"
+            style="background: linear-gradient(135deg, rgba(233, 213, 255, 0.9), rgba(191, 219, 254, 0.9)); border-left: 5px solid #a855f7; text-align: left;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0" style="color: #4338ca;">
+                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>AI Performance Analysis
+                </h4>
+                <button id="btn-generate-insight" class="btn btn-primary"
+                    style="background: #a855f7; border: none; border-radius: 50px; font-weight: 600; padding: 0.5rem 1.5rem;">
+                    Generate Report
+                </button>
+            </div>
+
+            <div id="ai-insight-content" class="text-dark" style="display: none; font-size: 1.05rem; line-height: 1.6;">
+            </div>
+
+            <div id="ai-insight-loader" class="text-center py-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status" style="color: #a855f7 !important;"></div>
+                <p class="text-muted mt-2 mb-0 fw-bold">Analyzing your performance...</p>
+            </div>
+        </div>
+
+        {% if questions %}
+        {% for q in questions %}
+        {% set status_class = 'status-skipped' %}
+        {% if q.is_skipped %}
+        {% set status_class = 'status-skipped' %}
+        {% set status_text = 'Skipped' %}
+        {% set status_icon = 'fa-forward' %}
+        {% elif q.is_correct %}
+        {% set status_class = 'status-correct' %}
+        {% set status_text = 'Correct' %}
+        {% set status_icon = 'fa-check' %}
+        {% else %}
+        {% set status_class = 'status-incorrect' %}
+        {% set status_text = 'Incorrect' %}
+        {% set status_icon = 'fa-times' %}
+        {% endif %}
+
+        <div class="question-card {{ status_class }}">
+            <div class="q-header">
+                <span class="q-number">Question {{ loop.index }}</span>
+                <div class="status-badge">
+                    <i class="fa-solid {{ status_icon }} me-1"></i> {{ status_text }}
+                </div>
+            </div>
+
+            <p class="q-text">{{ q.question_text }}</p>
+
+            <div class="answers-grid">
+                <div class="answer-box user-answer {{ status_class }}">
+                    <span class="answer-label">Your Answer</span>
+                    <span class="answer-content">
+                        {% if q.is_skipped %}
+                        <span class="text-muted fst-italic">Skipped</span>
+                        {% else %}
+                        {{ q.user_selected_text }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="answer-box correct-answer-box">
+                    <span class="answer-label">Correct Answer</span>
+                    <span class="answer-content">{{ q.correct_option_text }}</span>
+                </div>
+            </div>
+
+            <div class="explanation-box">
+                <div class="exp-title">
+                    <i class="fa-solid fa-lightbulb"></i> Explanation
+                </div>
+                <p class="exp-text">{{ q.explanation }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-center text-muted">
+            <p>No detailed history found for this quiz.</p>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('student_dashboard') }}" class="btn-back">
+            <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/review.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+
+    <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasProfile"
+        aria-labelledby="offcanvasProfileLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasProfileLabel">My Profile</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column">
+            <div class="text-center mb-2">
+                <div class="avatar-large mx-auto mb-2">
+                    {% if session.get('avatar_url') %}
+                    <img src="{{ session['avatar_url'] }}?v={{ range(1, 10000) | random }}" alt="Profile"
+                        class="avatar-circle" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
+                    {% else %}
+                    <span id="offcanvasUserInitial"
+                        class="d-flex align-items-center justify-content-center bg-secondary text-white fw-bold"
+                        style="width: 80px; height: 80px; border-radius: 50%; font-size: 2rem;">
+                        {{ session.get('user_name', 'U')[0]|upper }}
+                    </span>
+                    {% endif %}
+                </div>
+                <h4 class="fw-bold mb-0" id="offcanvasUserName">{{ session.get('user_name', 'User Name') }}</h4>
+                <p class="text-muted small" id="offcanvasUserEmail">{{ session.get('user_email', 'user@example.com') }}
+                </p>
+            </div>
+
+            <div class="d-grid gap-2 mb-auto">
+                <a href="{{ url_for('profile') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-user me-3 text-primary"></i> My Profile
+                </a>
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-table-columns me-3 text-primary"></i> Dashboard
+                </a>
+                <a href="{{ url_for('settings') }}" class="btn btn-light text-start p-2 profile-link">
+                    <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
+                </a>
+            </div>
+
+            <div class="mt-2 pt-2 border-top text-center">
+                <button onclick="handleLogout()" class="btn btn-danger w-100 mb-2">
+                    <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                </button>
+                <div class="brand-name fs-4 fw-bold text-muted">PrepWise</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

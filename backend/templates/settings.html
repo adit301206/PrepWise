@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-wZidth, initial-scale=1.0">
+    <title>Settings - PrepWise</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="sticker-container">
+        <div class="sticker s1">⚙️</div>
+        <div class="sticker s2">🔧</div>
+        <div class="sticker s3">🛡️</div>
+        <div class="sticker s4">📊</div>
+        <div class="sticker s5">🔔</div>
+    </div>
+    <div class="settings-container">
+        <!-- Sidebar Navigation -->
+        <div class="settings-sidebar">
+            <div class="sidebar-header">
+                <h2>Settings</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="general">
+                    <i class="fa-solid fa-user"></i> General
+                </button>
+                <button class="nav-item" data-tab="security">
+                    <i class="fa-solid fa-lock"></i> Security
+                </button>
+                <button class="nav-item" data-tab="analysis">
+                    <i class="fa-solid fa-chart-line"></i> Student Analysis
+                </button>
+                <button class="nav-item danger-item" data-tab="danger">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                {% if session.get('role') in ['teacher', 'admin'] %}
+                <a href="{{ url_for('teacher_console') }}" class="back-link">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('student_dashboard') }}" class="back-link">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="settings-content">
+
+            <!-- Tab: General (Profile & Email) -->
+            <div id="general" class="tab-content active">
+                <div class="content-header">
+                    <h3>General Settings</h3>
+                    <p>Manage your account details.</p>
+                </div>
+
+
+
+                <div class="settings-card">
+                    <h4>Change Email</h4>
+                    <form id="email-form">
+                        <div class="form-group">
+                            <label>Current Email</label>
+                            <input type="email" name="current_email" placeholder="Enter current email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-email">New Email Address</label>
+                            <input type="email" id="new-email" name="new_email" placeholder="Enter new email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Email</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Security (Password) -->
+            <div id="security" class="tab-content">
+                <div class="content-header">
+                    <h3>Security</h3>
+                    <p>Protect your account with a strong password.</p>
+                </div>
+
+                <div class="settings-card">
+                    <h4>Change Password</h4>
+                    <form id="password-form">
+                        <div class="form-group">
+                            <label for="current-password">Current Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="current-password" name="current_password" required>
+                                <i class="fa-solid fa-eye toggle-password"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="new-password" name="new_password" required minlength="6">
+                                <i class="fa-solid fa-eye toggle-password"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm New Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="confirm-password" name="confirm_password" required>
+                                <i class="fa-solid fa-eye toggle-password"></i>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
+                    <div id="password-message"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Analysis (Review) -->
+            <div id="analysis" class="tab-content">
+                <div class="content-header">
+                    <h3>Student Analysis Review</h3>
+                    <p>A quick overview of your performance.</p>
+                </div>
+
+                <div class="analysis-grid">
+                    <!-- Overall Stats -->
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h5>Overall Accuracy</h5>
+                            <span class="stat-value">{{ stats.accuracy }}%</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h5>Quizzes Taken</h5>
+                            <span class="stat-value">{{ stats.quizzes_taken }}</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h5>Current Streak</h5>
+                            <span class="stat-value">{{ stats.streak }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card analysis-details">
+                    <div class="row">
+                        <div class="col">
+                            <h4>💪 Strongest Topics</h4>
+                            <ul class="topic-list good">
+                                {% for topic in stats.strongest %}
+                                <li>
+                                    <span>{{ topic.name }}</span>
+                                    <span class="badge">{{ topic.score }}%</span>
+                                </li>
+                                {% else %}
+                                <li><span class="text-muted">No data yet</span></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col">
+                            <h4>⚠️ Needs Improvement</h4>
+                            <ul class="topic-list bad">
+                                {% for topic in stats.weakest %}
+                                <li>
+                                    <span>{{ topic.name }}</span>
+                                    <span class="badge">{{ topic.score }}%</span>
+                                </li>
+                                {% else %}
+                                <li><span class="text-muted">Keep practicing!</span></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <a href="#" class="btn btn-outline">View Full Detailed Report <i
+                                class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Danger Zone -->
+            <div id="danger" class="tab-content">
+                <div class="content-header danger-header">
+                    <h3>Danger Zone</h3>
+                    <p>Irreversible actions. Please be careful.</p>
+                </div>
+
+                <div class="settings-card danger-card">
+                    <div class="danger-row">
+                        <div>
+                            <h4>Delete Quiz History</h4>
+                            <p>This will permanently delete all your past quiz attempts, scores, and analytics data.</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="confirmDelete()">Delete Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Report Container (Off-Screen) -->
+    <div id="pdf-report-container"
+        style="position: absolute; left: -9999px; top: -9999px; width: 800px; z-index: -100;">
+        <div id="pdf-content" style="font-family: 'Poppins', sans-serif; background: #fca5a5;">
+
+            <div
+                style="height: 1040px; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+
+                <div
+                    style="background: white; border-radius: 24px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+                    <div
+                        style="display: flex; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 25px; margin-bottom: 30px;">
+                        <img src="{{ url_for('static', filename='images/PrepWise-Logo.png', _external=True) }}"
+                            alt="PrepWise Logo"
+                            style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #fca5a5; margin-right: 20px;">
+                        <div style="flex: 1;">
+                            <h1
+                                style="color: #be123c; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">
+                                PrepWise Official Report</h1>
+                            <p style="color: #64748b; margin: 5px 0 0 0; font-size: 15px; font-weight: 500;">
+                                Comprehensive Performance Analytics</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-weight: 800; color: #1e293b; font-size: 18px;">{{ user_name }}</p>
+                            <p style="margin: 0; color: #64748b; font-size: 13px;">{{ user_email }}</p>
+                            <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 12px; text-transform: uppercase;">
+                                Generated: <span id="pdf-date"></span></p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                        <div
+                            style="flex: 1; padding: 20px; background: #fff1f2; border-radius: 16px; text-align: center; border: 1px solid #ffe4e6;">
+                            <h3
+                                style="margin: 0; color: #be123c; font-size: 13px; text-transform: uppercase; font-weight: 700;">
+                                Overall Accuracy</h3>
+                            <p style="margin: 10px 0 0 0; font-size: 36px; font-weight: 900; color: #e11d48;">{{
+                                stats.accuracy | round(1) }}%</p>
+                        </div>
+                        <div
+                            style="flex: 1; padding: 20px; background: #f0fdf4; border-radius: 16px; text-align: center; border: 1px solid #dcfce7;">
+                            <h3
+                                style="margin: 0; color: #166534; font-size: 13px; text-transform: uppercase; font-weight: 700;">
+                                Total Quizzes</h3>
+                            <p style="margin: 10px 0 0 0; font-size: 36px; font-weight: 900; color: #15803d;">{{
+                                stats.quizzes_taken }}</p>
+                        </div>
+                        <div
+                            style="flex: 1; padding: 20px; background: #fffbeb; border-radius: 16px; text-align: center; border: 1px solid #fef3c7;">
+                            <h3
+                                style="margin: 0; color: #b45309; font-size: 13px; text-transform: uppercase; font-weight: 700;">
+                                Current Streak</h3>
+                            <p style="margin: 10px 0 0 0; font-size: 36px; font-weight: 900; color: #d97706;">{{
+                                stats.streak }} 🔥</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 30px;">
+                        <div style="flex: 1;">
+                            <h3
+                                style="color: #15803d; font-size: 16px; font-weight: 800; border-bottom: 2px solid #dcfce7; padding-bottom: 8px; margin-bottom: 15px;">
+                                💪 Mastered Concepts</h3>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                {% for topic in stats.strongest %}
+                                <li
+                                    style="padding: 12px 15px; background: #f0fdf4; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="color: #1e293b; font-size: 14px;">{{ topic.name }}</strong>
+                                    <span
+                                        style="background: white; padding: 4px 10px; border-radius: 50px; color: #15803d; font-weight: 800; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">{{
+                                        topic.score | round(1) }}%</span>
+                                </li>
+                                {% else %}
+                                <li
+                                    style="padding: 15px; color: #64748b; font-size: 14px; text-align: center; background: #f8fafc; border-radius: 10px;">
+                                    More data needed.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3
+                                style="color: #be123c; font-size: 16px; font-weight: 800; border-bottom: 2px solid #ffe4e6; padding-bottom: 8px; margin-bottom: 15px;">
+                                ⚠️ Areas for Improvement</h3>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                {% for topic in stats.weakest %}
+                                <li
+                                    style="padding: 12px 15px; background: #fff1f2; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="color: #1e293b; font-size: 14px;">{{ topic.name }}</strong>
+                                    <span
+                                        style="background: white; padding: 4px 10px; border-radius: 50px; color: #e11d48; font-weight: 800; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">{{
+                                        topic.score | round(1) }}%</span>
+                                </li>
+                                {% else %}
+                                <li
+                                    style="padding: 15px; color: #64748b; font-size: 14px; text-align: center; background: #f8fafc; border-radius: 10px;">
+                                    More data needed.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; color: white; font-size: 13px; font-weight: 600;">
+                    <p style="margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">PrepWise System • prepwise.com • Page
+                        1</p>
+                </div>
+            </div>
+
+            <div class="html2pdf__page-break"></div>
+
+            <div
+                style="height: 1040px; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+
+                <div
+                    style="background: white; border-radius: 24px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+                    <h3
+                        style="color: #1e293b; font-size: 22px; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 30px;">
+                        Visual Diagnostics: Subject Mastery
+                    </h3>
+
+                    {% if charts and charts.radar_chart %}
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="color: #64748b; font-size: 14px; text-transform: uppercase; margin-bottom: 15px;">
+                            Subject Mastery Radar</h4>
+                        <img src="data:image/png;base64,{{ charts.radar_chart }}"
+                            style="max-width: 100%; max-height: 550px; object-fit: contain; border-radius: 16px; border: 1px solid #e2e8f0; padding: 15px;"
+                            alt="Radar Chart">
+                    </div>
+                    {% else %}
+                    <div
+                        style="padding: 60px 20px; text-align: center; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
+                        <p style="color: #64748b; font-size: 16px; font-weight: 600; margin: 0;">Take more quizzes to
+                            generate your radar chart!</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="text-align: center; color: white; font-size: 13px; font-weight: 600;">
+                    <p style="margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">PrepWise System • prepwise.com • Page
+                        2</p>
+                </div>
+            </div>
+
+            <div class="html2pdf__page-break"></div>
+
+            <div
+                style="height: 1040px; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+
+                <div
+                    style="background: white; border-radius: 24px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+                    <h3
+                        style="color: #1e293b; font-size: 22px; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 30px;">
+                        Visual Diagnostics: Progression
+                    </h3>
+
+                    {% if charts and charts.progress_chart %}
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h4 style="color: #64748b; font-size: 14px; text-transform: uppercase; margin-bottom: 15px;">
+                            Score Progression Timeline</h4>
+                        <img src="data:image/png;base64,{{ charts.progress_chart }}"
+                            style="max-width: 100%; max-height: 550px; object-fit: contain; border-radius: 16px; border: 1px solid #e2e8f0; padding: 15px;"
+                            alt="Progress Chart">
+                    </div>
+                    {% else %}
+                    <div
+                        style="padding: 60px 20px; text-align: center; background: #f8fafc; border-radius: 16px; border: 2px dashed #cbd5e1;">
+                        <p style="color: #64748b; font-size: 16px; font-weight: 600; margin: 0;">Take more quizzes to
+                            generate your timeline!</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="text-align: center; color: white; font-size: 13px; font-weight: 600;">
+                    <p style="margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">PrepWise System • prepwise.com • Page
+                        3</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modals or Feedback -->
+    <div id="toast" class="toast hidden">Settings Saved!</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+</body>
+
+</html>

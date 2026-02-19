@@ -45,9 +45,7 @@
                 </div>
 
                 <div class="ms-auto d-flex align-items-center gap-3">
-                    <a href="{{ url_for('analytics') }}" class="btn btn-analytics">
-                        <i class="fa-solid fa-chart-pie me-2"></i>Analytics
-                    </a>
+
                     <div class="profile-badge position-relative" title="My Profile" style="cursor: pointer;">
                         <div class="avatar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProfile" role="button">
                             {% if session.get('avatar_url') %}
@@ -147,7 +145,32 @@
 
             <!-- OVERVIEW: Recent Activity -->
             <div id="overview-section" class="row g-4 animate-up mb-5">
-                <div class="col-lg-8">
+                <div class="col-lg-12">
+                    <!-- Analytics Charts Row -->
+                    <div class="row mb-4">
+                        {% if charts.get('subject_chart') %}
+                        <div class="col-12 mb-4">
+                            <div class="content-card">
+                                <h3 class="section-title mb-3">Global Subject Performance</h3>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    <img src="data:image/png;base64,{{ charts['subject_chart'] }}"
+                                        class="img-fluid rounded" alt="Subject Performance">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if charts.get('activity_chart') %}
+                        <div class="col-12 mb-4">
+                            <div class="content-card">
+                                <h3 class="section-title mb-3">Platform Activity (Last 14 Days)</h3>
+                                <img src="data:image/png;base64,{{ charts['activity_chart'] }}"
+                                    class="img-fluid rounded d-block mx-auto" alt="Platform Activity">
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <div class="content-card">
                         <div class="mb-4">
                             <h3 class="section-title">Recent User Activity</h3>
@@ -170,24 +193,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="content-card">
-                        <div class="mb-4">
-                            <h3 class="section-title">Quick Actions</h3>
-                            <p class="section-subtitle">Common administrative tasks.</p>
-                        </div>
-                        <div class="d-flex flex-column gap-3">
-                            <button class="action-btn">
-                                <i class="fa-solid fa-database text-purple"></i>
-                                Database Backup
-                            </button>
-                            <button class="action-btn">
-                                <i class="fa-solid fa-shield-halved text-green"></i>
-                                Security Audit
-                            </button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             <!-- USER MANAGEMENT -->
@@ -320,69 +326,120 @@
     </main>
 
     <!-- Modal for Adding Question -->
+    <!-- Modal for Adding Question (Premium Glassmorphism) -->
     <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Question</h5>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-glass-content">
+                <div class="modal-header modal-header-glass">
+                    <h5 class="modal-title modal-title-glass">
+                        <i class="fa-solid fa-circle-plus me-2"></i>Add New Question
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body modal-body-glass">
                     <form id="addQuestionForm">
-                        <div class="mb-3">
-                            <label class="form-label">Topic</label>
-                            <select class="form-select" id="q-topic" required>
-                                {% for t in topics %}
-                                <option value="{{ t.topic_id }}">{{ t.subject_name }} - {{ t.topic_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Question Text</label>
-                            <textarea class="form-control" id="q-text" rows="2" required></textarea>
-                        </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="q-opt1" placeholder="Option A" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="q-opt2" placeholder="Option B" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="q-opt3" placeholder="Option C" required>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control" id="q-opt4" placeholder="Option D" required>
+                        <div class="mb-4">
+                            <label class="form-label form-label-glass">Topic</label>
+                            <!-- Custom Dropdown for Topic -->
+                            <div class="custom-select-wrapper" id="topic-wrapper">
+                                <div class="custom-select-trigger">
+                                    <span>Select a Topic...</span>
+                                    <div class="arrow"></div>
+                                </div>
+                                <div class="custom-options">
+                                    {% for t in topics %}
+                                    <span class="custom-option" data-value="{{ t.topic_id }}">{{ t.subject_name }} - {{
+                                        t.topic_name }}</span>
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" id="q-topic" name="topic_id">
                             </div>
                         </div>
-                        <div class="row mb-3">
+                        <div class="mb-4">
+                            <label class="form-label form-label-glass">Question Text</label>
+                            <textarea class="form-control form-control-glass" id="q-text" rows="3"
+                                placeholder="Enter the question here..." required></textarea>
+                        </div>
+
+                        <label class="form-label form-label-glass mb-3">Answer Options</label>
+                        <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Correct Option</label>
-                                <select class="form-select" id="q-correct">
-                                    <option value="0">Option A</option>
-                                    <option value="1">Option B</option>
-                                    <option value="2">Option C</option>
-                                    <option value="3">Option D</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0 fw-bold text-muted">A.</span>
+                                    <input type="text" class="form-control form-control-glass" id="q-opt1"
+                                        placeholder="Option A" required>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Difficulty</label>
-                                <select class="form-select" id="q-difficulty">
-                                    <option value="Easy">Easy</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Hard">Hard</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0 fw-bold text-muted">B.</span>
+                                    <input type="text" class="form-control form-control-glass" id="q-opt2"
+                                        placeholder="Option B" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0 fw-bold text-muted">C.</span>
+                                    <input type="text" class="form-control form-control-glass" id="q-opt3"
+                                        placeholder="Option C" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0 fw-bold text-muted">D.</span>
+                                    <input type="text" class="form-control form-control-glass" id="q-opt4"
+                                        placeholder="Option D" required>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Explanation (Optional)</label>
-                            <textarea class="form-control" id="q-explanation" rows="2"></textarea>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label form-label-glass">Correct Option</label>
+                                <!-- Custom Dropdown for Correct Option -->
+                                <div class="custom-select-wrapper" id="correct-wrapper">
+                                    <div class="custom-select-trigger">
+                                        <span>Select Correct Option</span>
+                                        <div class="arrow"></div>
+                                    </div>
+                                    <div class="custom-options">
+                                        <span class="custom-option" data-value="0">Option A</span>
+                                        <span class="custom-option" data-value="1">Option B</span>
+                                        <span class="custom-option" data-value="2">Option C</span>
+                                        <span class="custom-option" data-value="3">Option D</span>
+                                    </div>
+                                    <input type="hidden" id="q-correct" name="correct_index">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-label-glass">Difficulty level</label>
+                                <!-- Custom Dropdown for Difficulty -->
+                                <div class="custom-select-wrapper" id="difficulty-wrapper">
+                                    <div class="custom-select-trigger">
+                                        <span>Select Difficulty</span>
+                                        <div class="arrow"></div>
+                                    </div>
+                                    <div class="custom-options">
+                                        <span class="custom-option" data-value="Easy">Easy</span>
+                                        <span class="custom-option" data-value="Medium">Medium</span>
+                                        <span class="custom-option" data-value="Hard">Hard</span>
+                                    </div>
+                                    <input type="hidden" id="q-difficulty" name="difficulty">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label form-label-glass">Explanation (Optional)</label>
+                            <textarea class="form-control form-control-glass" id="q-explanation" rows="2"
+                                placeholder="Explain why the answer is correct..."></textarea>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="saveQuestion()">Save Question</button>
+                <div class="modal-footer modal-footer-glass">
+                    <button type="button" class="btn btn-secondary-glass" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-save-glass" onclick="saveQuestion()">
+                        <i class="fa-solid fa-check me-2"></i>Save Question
+                    </button>
                 </div>
             </div>
         </div>
@@ -432,7 +489,52 @@
             document.querySelectorAll('.admin-nav .nav-item')[3].classList.add('active');
         }
 
-        // --- API Interaction Logic ---
+        // --- Custom Dropdown Logic ---
+        document.addEventListener('click', function (e) {
+            // Close all dropdowns if clicking outside
+            if (!e.target.closest('.custom-select-wrapper')) {
+                document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
+                    wrapper.querySelector('.custom-select-trigger').classList.remove('open');
+                    wrapper.querySelector('.custom-options').classList.remove('open');
+                });
+            }
+        });
+
+        // Initialize custom dropdowns
+        document.querySelectorAll('.custom-select-wrapper').forEach(wrapper => {
+            const trigger = wrapper.querySelector('.custom-select-trigger');
+            const options = wrapper.querySelector('.custom-options');
+            const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+            const optionItems = wrapper.querySelectorAll('.custom-option');
+
+            trigger.addEventListener('click', function () {
+                // Close other dropdowns
+                document.querySelectorAll('.custom-select-wrapper').forEach(otherWrapper => {
+                    if (otherWrapper !== wrapper) {
+                        otherWrapper.querySelector('.custom-select-trigger').classList.remove('open');
+                        otherWrapper.querySelector('.custom-options').classList.remove('open');
+                    }
+                });
+
+                trigger.classList.toggle('open');
+                options.classList.toggle('open');
+            });
+
+            optionItems.forEach(option => {
+                option.addEventListener('click', function () {
+                    trigger.querySelector('span').textContent = this.textContent;
+                    hiddenInput.value = this.getAttribute('data-value');
+
+                    // Visual feedback
+                    optionItems.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    // Close dropdown
+                    trigger.classList.remove('open');
+                    options.classList.remove('open');
+                });
+            });
+        });
 
         async function addSubject() {
             const name = document.getElementById('new-subject-name').value;
@@ -523,6 +625,7 @@
         }
 
         async function saveQuestion() {
+            // Note: We now get values from the hidden inputs
             const topicId = document.getElementById('q-topic').value;
             const text = document.getElementById('q-text').value;
             const opt1 = document.getElementById('q-opt1').value;
@@ -533,7 +636,7 @@
             const difficulty = document.getElementById('q-difficulty').value;
             const explanation = document.getElementById('q-explanation').value;
 
-            if (!text || !opt1 || !opt2 || !opt3 || !opt4) {
+            if (!topicId || !text || !opt1 || !opt2 || !opt3 || !opt4 || correctIdx === "" || !difficulty) {
                 return alert("Please fill all required fields");
             }
 
@@ -596,7 +699,7 @@
                 <a href="{{ url_for('teacher_console') }}" class="btn btn-navy text-start p-2 profile-link active">
                     <i class="fa-solid fa-chalkboard-user me-3 text-purple"></i> Teacher Console
                 </a>
-                <a href="#" class="btn btn-light text-start p-2 profile-link">
+                <a href="{{ url_for('settings') }}" class="btn btn-light text-start p-2 profile-link">
                     <i class="fa-solid fa-gear me-3 text-secondary"></i> Settings
                 </a>
             </div>

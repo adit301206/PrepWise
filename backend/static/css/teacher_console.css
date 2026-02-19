@@ -474,7 +474,7 @@ body {
     background: white;
     border-radius: 24px;
     padding: 2rem;
-    height: 100%;
+    /* height: 100%; Removed to prevent extra space */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -953,6 +953,299 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: inherit;
     display: block;
+    border-radius: 50%;
+}
+
+/* --- Premium Modal Styling --- */
+/* --- Premium Glassmorphism Modal Restyled (Pastel Theme) --- */
+.modal-glass-content {
+    /* Using a subtle gradient of the user's requested colors for the base */
+    background: linear-gradient(135deg, rgba(233, 213, 255, 0.95), rgba(191, 219, 254, 0.95)) !important;
+    /* #e9d5ff (Purple) -> #bfdbfe (Blue) */
+    backdrop-filter: blur(30px) saturate(140%);
+    -webkit-backdrop-filter: blur(30px) saturate(140%);
+    border: 2px solid rgba(255, 255, 255, 0.9) !important;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2) !important;
+    overflow: hidden;
+    position: relative;
+    color: #1e293b !important;
+}
+
+/* Header with the Pink/Yellow warmth */
+.modal-header-glass {
+    background: linear-gradient(to right, #fca5a5, #fde68a) !important;
+    /* #fca5a5 (Pink) -> #fde68a (Yellow) */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6) !important;
+    padding: 1.5rem 2rem;
+    color: #1e293b !important;
+    /* Dark text for contrast on pastel header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title-glass {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: #1e293b !important;
+    /* Dark contrast text */
+    letter-spacing: -0.5px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    text-shadow: none !important;
+}
+
+.modal-header-glass .btn-close {
+    filter: none !important;
+    /* Reset distinct filter */
+    color: #1e293b !important;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.modal-header-glass .btn-close:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+.modal-body-glass {
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.4);
+    /* Light tint over the base gradient */
+    color: #1e293b !important;
+}
+
+/* Labels with high contrast */
+.form-label-glass {
+    font-weight: 800;
+    color: #1e293b !important;
+    /* Dark Slate */
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    padding-left: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Glass Inputs - clean white to stand out against pastel */
+.form-control-glass,
+.form-select-glass {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid rgba(255, 255, 255, 1) !important;
+    border-radius: 16px;
+    padding: 0.9rem 1.2rem;
+    font-weight: 700;
+    color: #1e293b !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.form-control-glass::placeholder {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.form-control-glass:focus,
+.form-select-glass:focus {
+    background: #ffffff !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+    outline: none;
+    color: #0f172a !important;
+    transform: translateY(-2px);
+}
+
+/* Input Group Text (A., B., C., D.) */
+.input-group .input-group-text.bg-transparent {
+    color: #4f46e5 !important;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding-right: 15px;
+    text-shadow: none !important;
+}
+
+.modal-footer-glass {
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 1.5rem 2.5rem;
+    background: rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-secondary-glass {
+    background: white !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #64748b !important;
+    font-weight: 700;
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary-glass:hover {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+    transform: translateY(-2px);
+}
+
+/* Save Button - vibrant purple/pink to pop against the pastels */
+.btn-save-glass {
+    background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+    border: none;
+    color: white !important;
+    font-weight: 700;
+    padding: 0.8rem 2.5rem;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+    display: flex;
+    align-items: center;
+}
+
+.btn-save-glass:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px -5px rgba(168, 85, 247, 0.5);
+    filter: brightness(1.1);
+}
+
+.btn-save-glass:active {
+    transform: translateY(-1px);
+}
+
+/* Scrollbar */
+.modal-body-glass::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body-glass::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.modal-body-glass::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 4px;
+}
+
+/* --- Custom Glassmorphism Dropdown Styles --- */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+}
+
+.custom-select-trigger {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid rgba(255, 255, 255, 1);
+    border-radius: 16px;
+    padding: 0.9rem 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.custom-select-trigger:hover {
+    background: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.custom-select-trigger.open {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #6366f1;
+    transition: transform 0.3s ease;
+}
+
+.custom-select-trigger.open .arrow {
+    transform: rotate(180deg);
+}
+
+.custom-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 1);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.custom-options.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-option {
+    display: block;
+    padding: 0.8rem 1.2rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.custom-option:last-child {
+    border-bottom: none;
+}
+
+.custom-option:hover {
+    background: #f1f5f9;
+    color: #6366f1;
+    padding-left: 1.5rem;
+    /* Slight slide effect */
+}
+
+.custom-option.selected {
+    background: #e0e7ff;
+    color: #4338ca;
+    font-weight: 800;
+}
+
+/* Scrollbar for dropdown options */
+.custom-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-options::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.custom-options::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

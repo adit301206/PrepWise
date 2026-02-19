@@ -793,13 +793,128 @@ body {
     border: 2px solid white;
 }
 
-.avatar:hover {
-    background: rgba(255, 255, 255, 0.95);
-    transform: translateY(-2px) scale(1.05);
-    /* Lift effect */
-    box-shadow: 0 10px 20px rgba(252, 165, 165, 0.4);
-    /* Soft Pink Glow matching hover */
-    border-color: #FCA5A5;
+/* --- LEADERBOARD PREMIUM UI --- */
+
+/* Main Glass Container */
+.leaderboard-card {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-radius: 24px !important;
+    padding: 1.5rem;
+    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.05);
+}
+
+/* Remove default bootstrap list borders */
+.leaderboard-list {
+    background: transparent !important;
+    gap: 12px;
+    /* Adds space between rows */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Individual Floating Rows */
+.leaderboard-list .list-group-item {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    border-radius: 16px !important;
+    padding: 1.2rem 1.5rem !important;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+/* Hover Animation */
+.leaderboard-list .list-group-item:hover {
+    transform: scale(1.02) translateX(8px);
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.3) !important;
+    z-index: 10;
+}
+
+/* Rank Badges */
+.rank-badge {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    color: #64748b;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* TOP 3 SPECIFIC STYLES */
+
+/* Rank 1: Gold */
+.list-group-item:nth-child(1) {
+    background: linear-gradient(135deg, rgba(253, 230, 138, 0.4), rgba(255, 255, 255, 0.4)) !important;
+    border-left: 5px solid #F59E0B !important;
+}
+
+.list-group-item:nth-child(1) .rank-badge i {
+    font-size: 1.6rem;
+    color: #F59E0B;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.8));
+    animation: pulse-glow 2s infinite alternate;
+}
+
+/* Rank 2: Silver */
+.list-group-item:nth-child(2) {
+    background: linear-gradient(135deg, rgba(226, 232, 240, 0.6), rgba(255, 255, 255, 0.4)) !important;
+    border-left: 5px solid #94A3B8 !important;
+}
+
+.list-group-item:nth-child(2) .rank-badge i {
+    font-size: 1.5rem;
+    color: #94A3B8;
+    filter: drop-shadow(0 0 6px rgba(148, 163, 184, 0.8));
+}
+
+/* Rank 3: Bronze */
+.list-group-item:nth-child(3) {
+    background: linear-gradient(135deg, rgba(254, 215, 170, 0.4), rgba(255, 255, 255, 0.4)) !important;
+    border-left: 5px solid #D97706 !important;
+}
+
+.list-group-item:nth-child(3) .rank-badge i {
+    font-size: 1.4rem;
+    color: #D97706;
+    filter: drop-shadow(0 0 6px rgba(217, 119, 6, 0.6));
+}
+
+/* Score Pill */
+.score-pill {
+    background: linear-gradient(135deg, #6366f1, #d946ef);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.6rem 1.2rem;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* User Avatar inside row */
+.avatar-circle-md {
+    border: 2px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pulse-glow {
+    from {
+        filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
+        transform: scale(1);
+    }
+
+    to {
+        filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.9));
+        transform: scale(1.1);
+    }
 }
 
 .avatar-circle {

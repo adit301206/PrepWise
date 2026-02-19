@@ -692,3 +692,105 @@ body {
     background-color: #fca5a5 !important;
     /* Pink */
 }
+
+/* Scrollable Chart Container */
+.chart-scroll-container {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    padding-right: 5px;
+    /* Prevent scrollbar overlapping content */
+}
+
+/* Custom Glass Dropdown */
+.custom-dropdown-wrapper {
+    position: relative;
+    width: 200px;
+    font-size: 0.9rem;
+    z-index: 100;
+}
+
+.custom-dropdown-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50px;
+    /* Pill shape */
+    padding: 0.5rem 1.25rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    color: #db2777;
+    /* Pink Text */
+    font-weight: 600;
+}
+
+.custom-dropdown-trigger:hover {
+    background: #ffffff;
+    border-color: #db2777;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(219, 39, 119, 0.15);
+}
+
+.custom-dropdown-trigger i {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.custom-dropdown-trigger.active {
+    border-color: #db2777;
+    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+}
+
+.custom-dropdown-trigger.active i {
+    transform: rotate(180deg);
+}
+
+/* Options Container */
+.custom-options {
+    position: absolute;
+    top: 120%;
+    /* Space below trigger */
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.custom-options.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-option {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #475569;
+    font-weight: 500;
+}
+
+.custom-option:hover {
+    background: rgba(219, 39, 119, 0.1);
+    /* Light Pink Hover */
+    color: #db2777;
+}
+
+.custom-option.selected {
+    background: rgba(219, 39, 119, 0.15);
+    color: #db2777;
+    font-weight: 700;
+}
